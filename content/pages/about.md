@@ -15,4 +15,4 @@ I'll be writing about any projects that I'm working on and technology that inter
 * Linux
 * & more
 
-Follow me on [twitter](https://twitter.com/rossw_) or e-mail me contact@rossw.co.uk to get in touch.
+Follow me on [twitter](https://twitter.com/rossw_) or [e-mail](mailto:contact@rossw.co.uk) me to get in touch.
