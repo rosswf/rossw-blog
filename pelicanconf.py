@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*- #
 
-AUTHOR = 'Ross Woodruff'
-SITENAME = 'Ross Woodruff'
+AUTHOR = 'Ross'
+SITENAME = 'RossW.co.uk'
 SITEURL = 'https://rossw.co.uk'
 
 PATH = 'content'
@@ -32,3 +32,25 @@ DEFAULT_PAGINATION = 10
 
 # Uncomment following line if you want document-relative URLs when developing
 RELATIVE_URLS = True
+
+THEME = 'rossw-blog-blue-penguin'
+
+GITHUB_URL = "https://github.com/rosswf"
+TWITTER_URL = "https://twitter.com/rossw_"
+
+SITESUBTITLE = "Programming, DevOps, Homelabs & more"
+
+# provided as examples, they make ‘clean’ urls. used by MENU_INTERNAL_PAGES.
+TAGS_URL           = 'tag'
+TAGS_SAVE_AS       = 'tag/index.html'
+AUTHORS_URL        = 'author'
+AUTHORS_SAVE_AS    = 'author/index.html'
+CATEGORIES_URL     = 'category'
+CATEGORIES_SAVE_AS = 'category/index.html'
+ARCHIVES_URL       = 'archive'
+ARCHIVES_SAVE_AS   = 'archive/index.html'
+
+# MENU_INTERNAL_PAGES = (
+#     ('Categories', CATEGORIES_URL, CATEGORIES_SAVE_AS),
+#     ('Archives', ARCHIVES_URL, ARCHIVES_SAVE_AS),
+# )
