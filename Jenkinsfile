@@ -19,8 +19,8 @@ pipeline {
     }
     stage ('Install Template') {
       steps {
-        git branch: 'main'
-            credentialsId: 'github'
+        git branch: 'main',
+            credentialsId: 'github',
             url: 'https://github.com/rosswf/rossw-blog-blue-penguin'
         sh "pelican-themes -i rossw-blog-blue-penguin"
       }
