@@ -33,7 +33,7 @@ pipeline {
     }
 
     stage ('Deploy') {
-      when {branch: 'main'}
+      when {branch 'main'}
       steps {
         sh "scp -rv -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null output/* ${username}@${serverip}:/var/www/blog/"
       }
