@@ -21,7 +21,7 @@ pipeline {
       steps {
         git branch: 'main',
             credentialsId: 'github',
-            url: 'https://github.com/rosswf/rossw-blog-blue-penguin'
+            url: 'git@github.com:rosswf/rossw-blog-blue-penguin.git'
         sh "pelican-themes -i rossw-blog-blue-penguin"
       }
     }
