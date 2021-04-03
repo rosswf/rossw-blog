@@ -6,7 +6,7 @@ pipeline {
   triggers { pollSCM('H/15 * * * * ')}
 
   stages {
-    stage ('Get AWS ip')
+    stage ('Get AWS ip') {
       steps {
         script {
                 serverip = sh (
@@ -16,7 +16,7 @@ pipeline {
         echo "The server IP is ${serverip}"
         }
       }
-
+    }
     stage ('Install Template') {
       steps {
         git branch: 'main'
