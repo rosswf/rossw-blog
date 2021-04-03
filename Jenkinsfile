@@ -19,6 +19,7 @@ pipeline {
     }
     stage ('Install Template') {
       steps {
+        dir('theme')
         git branch: 'main',
             credentialsId: 'github',
             url: 'git@github.com:rosswf/rossw-blog-blue-penguin.git'
