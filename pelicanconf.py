@@ -11,6 +11,8 @@ TIMEZONE = 'Europe/London'
 
 DEFAULT_LANG = 'en'
 
+STATIC_PATHS =(('images'),)
+
 # Feed generation is usually not desired when developing
 FEED_ALL_ATOM = None
 CATEGORY_FEED_ATOM = None
@@ -50,7 +52,7 @@ CATEGORIES_SAVE_AS = 'category/index.html'
 ARCHIVES_URL       = 'archive'
 ARCHIVES_SAVE_AS   = 'archive/index.html'
 
-# MENU_INTERNAL_PAGES = (
-#     ('Categories', CATEGORIES_URL, CATEGORIES_SAVE_AS),
-#     ('Archives', ARCHIVES_URL, ARCHIVES_SAVE_AS),
-# )
+MENU_INTERNAL_PAGES = (
+    # ('Categories', CATEGORIES_URL, CATEGORIES_SAVE_AS),
+    ('Archives', ARCHIVES_URL, ARCHIVES_SAVE_AS),
+)
