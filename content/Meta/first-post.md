@@ -2,7 +2,7 @@ Title: First Post
 Date: 2021-04-02 19:12
 Modified: 2021-04-04 12:16
 Tags: blog, meta
-Summary: My first blog post
+Summary: My first blog post.
 
 Welcome!
 
