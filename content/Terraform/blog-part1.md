@@ -215,7 +215,7 @@ Here we have:
 
 A quick holy trinity of `terraform init`, `terraform plan`, `terraform apply` and we have a fully provisioned EC2 instance only allowing the connections we want and DNS records pointing to the instance! 
 
-![AWS Console]({static}/images/part1-aws-console.png)
+![AWS Console]({static}/images/part1-aws-console.webp)
 
 That's it for part1. In the next I will discuss configuring the server using ansible.
 
