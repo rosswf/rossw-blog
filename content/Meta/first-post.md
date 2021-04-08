@@ -3,6 +3,7 @@ Date: 2021-04-02 19:12
 Modified: 2021-04-04 12:16
 Tags: blog, meta
 Summary: My first blog post.
+Description: I recently started taking my hobby of tinkering with (and breaking) technology a lot more seriously and have decided to write about my experiences.
 
 Welcome!
 

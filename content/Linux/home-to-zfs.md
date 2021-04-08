@@ -3,6 +3,7 @@ Date: 2021-04-10 10:00
 Tags: zfs, linux, ubuntu, sysadmin
 Summary: Moving /home to take advantage of ZFS the benefits of ZFS. Compression and snapshot backups.
 Slug: home-to-zfs
+Description: Moving /home to take advantage of ZFS the benefits of ZFS. Compression and snapshot backups. 
 Status: draft
 
 Currently on my main desktop machine my `/home` directory resides on a separate SSD with an ext4 filesystem.
@@ -122,11 +123,13 @@ Great! Now that we have the filesystem and it is mounted at `/mypool/home` we ca
 	:::text
 	sudo cp -av /temp-home/* /mypool/home
 
+Then check the pool usage and compression ratio.
+
 	:::text
 	$ sudo zfs list -o name,used,avail,refer,mountpoint,compressratio
-	NAME          USED  AVAIL     REFER  MOUNTPOINT  RATIO
-	mypool       54.9G   170G      192K  /mypool     1.22x
-	mypool/home  54.9G   170G     54.9G  /mypool/home       1.22x
+	NAME          USED  AVAIL     REFER  MOUNTPOINT  	RATIO
+	mypool       54.9G   170G      192K  /mypool     	1.22x
+	mypool/home  54.9G   170G     54.9G  /mypool/home   1.22x
 
 And yep, we can now see that 54.9G is used up and the compression ratio is 1.22x. Compression has definitely paid off!
 

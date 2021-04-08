@@ -3,6 +3,7 @@ Date: 2021-04-04 11:22
 Tags: blog, meta, terraform
 Summary: First post in a mini series detailing how this blog was setup. This one covers provisioning EC2 instances with terraform.
 Slug: blog-setup-part1-terraform
+Description: Learning how to provision an AWS EC2 instance using Terraform. This is the first part of a mini series detailing how this blog was setup.
 
 This is the first part of a mini series detailing how this blog was setup. In this part I will discuss provisioning using Terraform. The relevant files can be found in this github [repo](https://github.com/rosswf/rossw-blog-terraform).
 

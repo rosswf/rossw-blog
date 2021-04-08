@@ -46,6 +46,7 @@ GITHUB_URL = "https://github.com/rosswf"
 TWITTER_URL = "https://twitter.com/rossw_"
 
 SITESUBTITLE = "Programming, DevOps, Homelabs & more"
+SITEDESCRIPTION = "Learn with me. Programming, DevOps, Homelabs & more"
 
 # provided as examples, they make ‘clean’ urls. used by MENU_INTERNAL_PAGES.
 TAGS_URL           = 'tag'
