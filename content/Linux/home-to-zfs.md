@@ -1,14 +1,16 @@
-Title: Giving /home a new home with ZFS
+Title: Giving /home a new home on ZFS 
 Date: 2021-04-10 10:00
 Tags: zfs, linux, ubuntu, sysadmin
 Summary: Moving /home to take advantage of ZFS the benefits of ZFS. Compression and snapshot backups.
 Slug: home-to-zfs
-Description: Moving /home to take advantage of ZFS the benefits of ZFS. Compression and snapshot backups. 
-Status: draft
+Description: Moving /home to ZFS to take advantage of the benefits of compression and snapshot backups. 
 
-Currently on my main desktop machine my `/home` directory resides on a separate SSD with an ext4 filesystem.
+Currently on my main desktop machine my `/home` directory resides on it's own 256gb SSD with an ext4 filesystem. I want to move this to a ZFS file system to take advantage of snapshots and compression.
 
-I have a TrueNAS VM running in proxmox (more on this in future posts) that `/home` then gets backed up to using an `rsync` cronjob. However I would like to be able to take advantage of ZFS snapshots when doing backups so I have decided to move `/home` to ZFS. I run ubuntu 20.10 so this is fairly straight forward as it is supported out of the box in the kernel. The only aspect that makes this a little bit messy is that I want to use ZFS on the existing SSD that currently has `/home` on it. I'll need to do quite a bit of juggling files!
+I have a TrueNAS VM running in proxmox (more on this in future posts) that `/home` then gets backed up to using an `rsync` cronjob. However as I mentioned previously I would like to be able to take advantage of ZFS snapshots when doing backups so I have decided to move `/home` to ZFS. 
+I run ubuntu 20.10 on my desktop PC so this is fairly straight forward. ZFS is supported out of the box in the kernel on ubuntu. 
+
+The only aspect that makes this a little bit messy is that I want to use ZFS on the existing SSD that currently has `/home` on it. I'll need to do quite a bit of juggling files!
 
 I am going to performing these steps on the live filesystem. I would recommend using a LiveCD for performing these tasks where possible, it'll make it a bit easier.
 
@@ -19,7 +21,7 @@ First of all, let's install the tools required for managing zfs using apt.
 	sudo apt install zfsutils-linux
 
 ### Copy /home to a temporary location
-The next thing to do is copy the entire contents of the `/home` directory that currently reside on the SSD. I have plenty of space on my main drive so I'm just going to create a folder there and copy everything to it but if you don't then feel free to use an external drive.
+The next thing to do is copy the entire contents of the `/home` directory that currently resides on the SSD to a temporary location. I have plenty of space on my main drive so I'm just going to create a folder there and copy everything to it but if you don't then feel free to use an external drive.
 
 	:::text
 	sudo mkdir /temp-hone
@@ -36,7 +38,7 @@ Now that the `/home` directory has been safely copied to another location `fstab
 	# /home was on /dev/sda1 during installation
 	# UUID=myuuid /home           ext4    defaults
 
-Next we can un-mount the drive. We use the `fl` flags for force and lazy un-mounting. Without this it won't work as there are programs running that are actively trying to access this file system. As I mentioned in the introduction, doing this in a live filesystem is less than ideal, which is why we had to take this step.
+Next we can un-mount the drive. We use the `-lf` flags for force and lazy un-mounting. Without this it won't work as there are programs running that are actively trying to access this file system. As I mentioned in the introduction, doing this in a live filesystem is less than ideal, which is why we had to take this step.
 
 	:::text
 	sudo umount -lf /dev/sda1
@@ -75,7 +77,7 @@ Before we can create the ZFS pool we need to delete all partitions from the seco
 Using `d` to delete the partition as there was only one and then `w` to write the changes to the partition table.
 
 ### Create a ZFS pool
-The prepartion is done so now we can finally create the ZFS pool. I'm going with `mypool` for lack of a better name but feel free to choose whatever you like. I also only have the one drive so don't need to worry about any sort of RAIDZ or mirroring. If you have multiple drives you'd like in your pool you'll want to check out the manpages for `zpool create`.
+The preparation is done so now we can finally create the ZFS pool. I'm going with `mypool` for lack of a better name but feel free to choose whatever you like. I also only have the one drive so don't need to worry about any sort of RAIDZ or mirroring. If you have multiple drives you'd like in your pool you'll want to check out the manpages for `zpool create`.
 
 	:::text
 	sudo zpool create mypool /dev/sda
@@ -113,7 +115,7 @@ And check it was created.
 Another benefit of ZFS is being able to use compression, there is a slight performance hit for doing this but since it's just my home directory I don't see this causing me any issues. So let's enable that now.
 
 	:::text
-	sudo zfs set compression:lz4 mypool
+	sudo zfs set compression=lz4 mypool
 
 I'm going to go with lz4 since this gives a great compression ratio for minimal performance impact. ServeTheHome have a great [article](https://www.servethehome.com/the-case-for-using-zfs-compression/) about it. 
 
@@ -141,7 +143,7 @@ Delete the `/home` directory.
 	:::text
 	sudo rm -rf /home
 
-Then change the mountpoint of `mypool/home` to `/home/`. And while we are it we can stop `mypool` from mounting by setting it's mountpoint to `none`
+Then change the mountpoint of `mypool/home` to `/home`. And while we are it we can stop `mypool` from mounting by setting it's mountpoint to `none`
 
 	:::text
 	sudo zfs set mountpoint=/home mypool/home
