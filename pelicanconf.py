@@ -73,3 +73,4 @@ PAGINATION_PATTERNS = (
 
 # Enable plausible analytics (Comment for testing)
 PLAUSIBLE = True
+PLAUSIBLE_DOMAIN = "rossw.co.uk"
