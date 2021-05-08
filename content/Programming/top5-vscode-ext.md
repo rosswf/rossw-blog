@@ -1,6 +1,6 @@
 Title: My top 5 VS Code Extensions
 Date: 2021-05-08 13:45
-Tags: python, venv, git, github, pip
+Tags: programming, vscode
 Summary: My top 5 VS Code Extensions
 Slug: top5-vscode-ext
 Description: My top 5 VS Code Extensions
