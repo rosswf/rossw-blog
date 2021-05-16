@@ -69,5 +69,5 @@ PAGINATION_PATTERNS = (
 # RELATIVE_URLS = True
 
 # Enable plausible analytics (Comment for testing)
-PLAUSIBLE = True
-PLAUSIBLE_DOMAIN = "rossw.co.uk"
+# PLAUSIBLE = True
+# PLAUSIBLE_DOMAIN = "rossw.co.uk"
