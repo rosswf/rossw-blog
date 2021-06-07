@@ -28,7 +28,7 @@ As I mentioned earlier all of the talks were great but these are some of the one
 
 ---
 
-**[Day 1 Keynote - Robert Erdmann](#)**
+**[Day 1 Keynote - Robert Erdmann](https://www.youtube.com/watch?v=z_hm5oX7ZlE)**
 
 Robert Erdmann has been using python to create an extremely high resolution image of Rembrandt's Night Watch painting. The final image will be 925,000px x 775,000px, that translates to each pixel representing 5 µm of the painting.
 
@@ -44,7 +44,7 @@ The talk needs to be seen purely to see how python as a programming language can
 
 ---
 
-**[From 3 to 300 fps: NES Emulation in Python and Cython - James Murphy](#)**
+**[From 3 to 300 fps: NES Emulation in Python and Cython - James Murphy](https://www.youtube.com/watch?v=3of9pY2vovA)**
 
 I didn't expect to enjoy this talk quite as much as I did but it was a great insight into just how flexible python is (I'd never expected it to be able to be used for an emulator) and how it can be optimised using the likes of Cython to see huge performance gains.
 
@@ -52,7 +52,7 @@ The finished emulator using CPython at first only ran at 2-3 fps but after a few
 
 ---
 
-**[Intro to Pydantic, run-time type checking for your dataclasses - Alexander Hultnér](#)**
+**[Intro to Pydantic, run-time type checking for your dataclasses - Alexander Hultnér](https://www.youtube.com/watch?v=W7f52FhfYqQ)**
 
 I'd heard of pydantic but it's not something I've got round to exploring yet. Alexander's talk was a fantastic introduction and really engaging. He used a very basic example of a Waffle House to clearly portray the benefits and uses of pydantic.
 
@@ -62,7 +62,7 @@ If like me you have heard of pydantic and aren't sure what it's about, why you m
 
 ---
 
-**[An Introduction to FastAPI - Thomas Jewitt](#)**
+**[An Introduction to FastAPI - Thomas Jewitt](https://www.youtube.com/watch?v=_jh4Wc3CE38)**
 
 FastAPI is something that I've been aware of for a while and the general consensus was that is is the next big thing but I wasn't entirely sure *why* it was so amazing. Thomas did a great job of explaining the features & benefits of FastAPI and how quick it is to get up and running.
 
@@ -78,8 +78,6 @@ I don't think this will completely replace Flask in the web framework world as t
 If you are going to use a front-end framework such as React or Vue it definitely makes sense to go with FastAPI but if you just want to build a web app with python, HTML, CSS and JS then I'd say Flask still has it's place. This opinion might change once I start using FastAPI but only time will tell. Let me know what your thoughts are.
 
 ---
-
-*At the time of writing this the talks are not available on youtube. Once they are I'll be providing links to each talk.*
 
 ### Final Thoughts
 
