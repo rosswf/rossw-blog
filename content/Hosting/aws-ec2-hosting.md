@@ -1,5 +1,5 @@
 Title: How to setup an AWS EC2 (VPS) instance
-Date: 2021-08-08 04:34
+Date: 2021-08-08 06:00
 Tags: aws, hosting, vps, ubuntu 
 Summary: A guide on how to setup an AWS EC2 (VPS) instance for hosting. Take advantage of the one year free tier.
 Description: A guide on how to setup an AWS EC2 (VPS) instance for hosting. Take advantage of the one year free tier.
