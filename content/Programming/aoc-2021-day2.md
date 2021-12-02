@@ -5,7 +5,7 @@ Summary: Advent of Code 2021 - Day 2
 Slug: aoc-2021-day2
 Description: Advent of Code 2021 - Day 2
 
-**Spoiler Warning: This post contains spoilers for Advent of Code Day 1.**
+**Spoiler Warning: This post contains spoilers for Advent of Code Day 2.**
 
 Time for day 2! This one was quite simple again but still a lot of fun especially because it gave me an excuse to try out another feature of python3.10 [Structural Pattern Matching](https://www.python.org/dev/peps/pep-0636/)
 
