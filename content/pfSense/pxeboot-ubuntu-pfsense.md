@@ -100,7 +100,7 @@ Navigate to Services->DHCP Server and scroll all the way down to near the bottom
 Check the enable box and then there are just a few fields we need to fill in. 
 The IP address for my pfSense is 192.168.0.1 but change your to suit.
 
-![pfSense dhcp settings]({static}/images/pxeboot-ubuntu-pfsense/tftp-settings.webp)
+![pfSense dhcp settings]({static}/images/pxeboot-ubuntu-pfsense/dhcp-settings.webp)
 
 ### Installing Ubuntu!
 
