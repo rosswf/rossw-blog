@@ -106,22 +106,22 @@ Then for the CO2 Scrubber Rating it was very similar but because of how I had se
 
     :::py
     def get_co2_rating(report: list[str]) -> str:
-    """Calculates the co2 rating from the report using the least_common_bits function
-    to filter out numbers that only contain the least common bit in each position until only
-    one number is left. Each time numbers are filtered out, the least common bit is
-    recalculated on the remaining numbers from the report for a given position.
-    """
-    for i in range(len(report[0])):
-        if len(report) == 1:
-            return report[0]
+        """Calculates the co2 rating from the report using the least_common_bits function
+        to filter out numbers that only contain the least common bit in each position until only
+        one number is left. Each time numbers are filtered out, the least common bit is
+        recalculated on the remaining numbers from the report for a given position.
+        """
+        for i in range(len(report[0])):
+            if len(report) == 1:
+                return report[0]
 
-        most_common_bits = get_most_common_bits(report)
-        least_common_bits = get_least_common_bits(most_common_bits)
-        working_report = [
-            number for number in report if number[i] == least_common_bits[i]
-        ]
-        report = working_report[:]
-    return report[0]
+            most_common_bits = get_most_common_bits(report)
+            least_common_bits = get_least_common_bits(most_common_bits)
+            working_report = [
+                number for number in report if number[i] == least_common_bits[i]
+            ]
+            report = working_report[:]
+        return report[0]
 
 Then putting it together and multiplying the Oxygen Generator Rating and CO2 Scrubber Rating.
 
