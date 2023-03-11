@@ -4,6 +4,7 @@ Tags: programming, aoc, python
 Summary: Advent of Code 2021 - Day 1
 Slug: aoc-2021-day1
 Description: Advent of Code 2021 - Day 1
+Status: hidden
 
 It's that time of year again! 
 I first took part in Advent of Code last year and made it up to day 10. I'm hoping that this year I can beat that.

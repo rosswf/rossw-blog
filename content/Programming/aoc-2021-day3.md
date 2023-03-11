@@ -4,6 +4,7 @@ Tags: programming, aoc, python, personal
 Summary: Advent of Code 2021 - Day 3
 Slug: aoc-2021-day3
 Description: Advent of Code 2021 - Day 3
+Status: hidden
 
 ### Personal Update
 

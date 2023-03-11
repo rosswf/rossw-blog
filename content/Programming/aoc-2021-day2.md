@@ -4,6 +4,7 @@ Tags: programming, aoc, python
 Summary: Advent of Code 2021 - Day 2
 Slug: aoc-2021-day2
 Description: Advent of Code 2021 - Day 2
+Status: hidden
 
 **Spoiler Warning: This post contains spoilers for Advent of Code Day 2.**
 
