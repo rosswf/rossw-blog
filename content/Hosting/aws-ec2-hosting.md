@@ -30,7 +30,7 @@ The first step is selecting which operating system you would like to run on your
 
 **Step 2: Choose an Instance Type**
 
-Next we choose our instance type. There are a plenty of options here (everything on AWS seems to be overwhelming!). For getting started, choose the t2.micro as this is free tier eligible and has 1gb of RAM which will be plenty for starting out. You can always upgrade later to one of the other instance types if your needs require it.
+Next we choose our instance type. There are plenty of options here (everything on AWS seems to be overwhelming!). For getting started, choose the t2.micro as this is free tier eligible and has 1gb of RAM which will be plenty for starting out. You can always upgrade later to one of the other instance types if your needs require it.
 
 Depending on what you are planning to run on your VPS, you can probably now just click the big blue "Review and Launch" button. This would be suitable for anything that doesn't require an inbound connection, such as a discord bot. However, if you want to host a website, see the optional step below.
 
