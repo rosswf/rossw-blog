@@ -79,8 +79,8 @@ To connect, you will need to make note of the Public IPv4 Address. This can be s
 
 Let's connect by SSH. The default user is `ubuntu` if you chose Ubuntu Server, and your IP address can be found on the AWS web console as mentioned above
 
-:::text
-$ ssh ubuntu@3.68.196.247 -i aws-key-pair.pem
+  :::text
+  $ ssh ubuntu@3.68.196.247 -i aws-key-pair.pem
 
 ![Connected]({static}/images/aws-ec2-hosting/connected.webp)
 
