@@ -28,6 +28,7 @@ pipeline {
     stage ('Build Content') {
       steps {
         sh "pelican content"
+        sh "rm -r docs"
         sh "mv output docs"
       }
     }
