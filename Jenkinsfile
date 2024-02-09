@@ -28,7 +28,7 @@ pipeline {
     stage ('Build Content') {
       steps {
         sh "pelican content"
-        sh "git mv output docs"
+        sh "mv output docs"
       }
     }
 
