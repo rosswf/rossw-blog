@@ -39,7 +39,7 @@ pipeline {
         git branch: 'gh-pages',
           credentialsId: 'github',
           url: 'git@github.com:rosswf/rossw-blog.git'
-        sh "git rebase main"
+        sh "git merge origin/main"
         sh "git add docs"
         sh "git commit -m 'Update site'"
         sh "git push origin gh-pages"
