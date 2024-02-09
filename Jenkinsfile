@@ -1,6 +1,3 @@
-def serverip
-def username = "ubuntu"
-
 pipeline {
   agent any
   triggers { pollSCM('H/15 * * * * ')}
@@ -37,8 +34,12 @@ pipeline {
     stage ('Deploy') {
       when {branch 'main'}
       steps {
-        sh "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${username}@${serverip} 'rm -rf /var/www/blog/*'"
-        sh "scp -rv -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null output/* ${username}@${serverip}:/var/www/blog/"
+        git branchL 'gh-pages',
+          credentialsId: 'github',
+          url: 'git@github.com:rosswf/rossw-blog.git'
+        sh "git checkout gh-pages"
+        sh "git commit -m 'Update site'"
+        sh "git push origin gh-pages"
       }
     }
   }
