@@ -34,7 +34,7 @@ pipeline {
     stage ('Deploy') {
       when {branch 'main'}
       steps {
-        git branchL 'gh-pages',
+        git branch: 'gh-pages',
           credentialsId: 'github',
           url: 'git@github.com:rosswf/rossw-blog.git'
         sh "git checkout gh-pages"
