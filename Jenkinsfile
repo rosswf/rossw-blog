@@ -38,6 +38,8 @@ pipeline {
           credentialsId: 'github',
           url: 'git@github.com:rosswf/rossw-blog.git'
         sh "git checkout gh-pages"
+        sh "git mv output docs"
+        sh "git add docs"
         sh "git commit -m 'Update site'"
         sh "git push origin gh-pages"
       }
