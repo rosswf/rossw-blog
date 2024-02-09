@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>
+RossW.co.uk    </title>
+    <link rel="shortcut icon" type="image/png" href="https://rossw.co.uk/favicon.png">
+    <link rel="shortcut icon" type="image/x-icon" href="https://rossw.co.uk/favicon.ico">
+    <link href="https://rossw.co.uk/feeds/all.rss.xml" type="application/rss+xml" rel="alternate" title="RossW.co.uk Full RSS Feed" />
+    <link rel="stylesheet" href="https://rossw.co.uk/theme/css/main.css" type="text/css" />
+    <link rel="stylesheet" href="https://rossw.co.uk/theme/css/pygments.css" type="text/css" />
+    <meta name="generator" content="Pelican" />
+    <meta name="author" content="Ross" />
+
+<meta name="description" content="Learn with me. Programming, DevOps, Homelabs & more" />
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li class="selected"><a href="https://rossw.co.uk/">Home</a></li>
+                <li><a href="https://rossw.co.uk/pages/about.html">About</a></li>
+                <li><a href="https://rossw.co.uk/archive">Archives</a></li>
+            </ul>
+        </nav>
+        <div class="header_box">
+            <h1><a href="https://rossw.co.uk/">RossW.co.uk</a></h1>
+            <h2>Programming, DevOps, Homelabs & more</h2>
+        </div>
+    </header>
+    <div id="wrapper">
+        <div id="content">            <h4 class="date">Aug 08, 2021</h4>
+
+            <article class="post">
+                <h2 class="title">
+                    <a href="https://rossw.co.uk/how-to-setup-an-aws-ec2-vps-instance.html" rel="bookmark" title="Permanent Link to &quot;How to setup an AWS EC2 (VPS) instance&quot;">How to setup an AWS EC2 (VPS) instance</a>
+                </h2>
+
+                
+                
+
+                <p>Recently, I have seen a number of people looking for hosting for their discord bots. Many people go to services like Heroku, but if you would like full VPS and full control, then AWS is a great option, especially since there is a free tier for one year. However, AWS has a lot of different products and the UI can be a little overwhelming so I thought I would write a quick brief guide on how to get started. This, however, is by no means a deep dive into all the features/products of AWS.</p>
+<h3>Getting Started</h3>
+<p>The first thing you need to do is head over to <a href="https://aws.amazon.com/">AWS</a> and create an account. This is not the same account that you would use for Amazon's website so you will need to create a new one. Make sure you setup 2FA as well.</p>
+<p>Once you have your account and are logged in, head over to the management console and under All Services-&gt;Compute, select EC2. This is basically amazon's name for a VPS, similar to a droplet on DigitalOcean.</p>
+<p><em>Note: If you wish to change the region, you can do so in the top right, next to your account name. It would make sense to do this now before creating your EC2 instance.</em></p>
+<p><img alt="Management Console" src="https://rossw.co.uk/images/aws-ec2-hosting/management-console.webp"></p>
+<h3>Launch instance</h3>
+<p>The EC2 Dashboard can seem very overwhelming at first as there are a lot of options, but the only thing we need right now is the big orange "Launch instance" button.</p>
+<p><img alt="Launch instance" src="https://rossw.co.uk/images/aws-ec2-hosting/launch-instance.webp"></p>
+<p><strong>Step 1: Choose an Amazon Machine Image (AMI)</strong></p>
+<p>The first step is selecting which operating system you would like to run on your EC2 instance. Make sure you choose one that is "Free tier eligible" if you want to take advantage of that for 12 months. For the purpose of this guide, I'm going to go with Ubuntu Server 20.04 LTS. If you are new to Linux, it is a great option as there are many learning resources available online; I'd definitely recommend it for getting started.</p>
+<p><img alt="Ubuntu Server" src="https://rossw.co.uk/images/aws-ec2-hosting/ubuntu-server.webp"></p>
+<p><strong>Step 2: Choose an Instance Type</strong></p>
+<p>Next we choose our instance type. There are plenty of options here (everything on AWS seems to be overwhelming!). For getting started, choose the t2.micro as this is free tier eligible and has 1gb of RAM which will be plenty for starting out. You can always upgrade later to one of the other instance types if your needs require it.</p>
+<p>Depending on what you are planning to run on your VPS, you can probably now just click the big blue "Review and Launch" button. This would be suitable for anything that doesn't require an inbound connection, such as a discord bot. However, if you want to host a website, see the optional step below.</p>
+<p>If you do not require any inbound connection other than SSH, you can skip the next step and just click the "Review and Launch" button.</p>
+<p><em>Note: One thing that could be done to restrict access is to change the security group settings so that SSH is only accessible from your own IP address rather than the entire world</em></p>
+<p><img alt="Instance Type" src="https://rossw.co.uk/images/aws-ec2-hosting/instance-type.webp"></p>
+<p><strong>Optional: Step 6: Configure Security Group</strong></p>
+<p>Skip ahead to step 6 of the configuration. This is where you can configure the security group. This is basically the firewall and defines which ports are open and where they can be accessed from. The change mentioned above about restricting SSH to your own IP can be done here. Simply change the Source to your own IP. For example: If your IP address was 1.1.1.1, you would enter "1.1.1.1/32".</p>
+<p>Here are some example options that would allow HTTP/HTTPS web traffic and a connection from SSH only on my own IP, shown as 1.1.1.1 as an example. Make sure you replace this with your own.</p>
+<p><img alt="Security Group" src="https://rossw.co.uk/images/aws-ec2-hosting/security-group.webp"></p>
+<p><strong>Launch!</strong></p>
+<p>Once you've completed the steps above, click "Review and Launch".</p>
+<p>Make sure you are happy with all your choices, then click "Launch".</p>
+<p><strong>SSH Keys</strong></p>
+<p>You will now be prompted to create an SSH key pair for accessing the EC2 instance. Choose "Create a new key pair" and give it a name, then click "Download Key Pair". </p>
+<p><strong><em>Make sure you save this somewhere secure and not lose it. If you do, you will no longer be able to gain access via SSH.</em></strong></p>
+<p><em>Note: I'm not going to go into using SSH and keys as it is outside of the scope of this guide. However, <a href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/putty.html">here is a guide</a> for using PuTTY on Windows with the key
+pair you have just downloaded.</em></p>
+<p>Once you have downloaded the key and saved it somewhere safe, click Launch Instances.</p>
+<p><img alt="Key Pair" src="https://rossw.co.uk/images/aws-ec2-hosting/keypair.webp"></p>
+<p><strong>Launched!</strong></p>
+<p>You can now go back to your dashboard and choose instances on the navigation panel. You should see your instance and its status. Once it is running, we can connect via SSH. You can click on it for further details in the panel below.</p>
+<p>To connect, you will need to make note of the Public IPv4 Address. This can be seen in the instance list at the top or within the details tab if you select the instance.</p>
+<p><img alt="Launched" src="https://rossw.co.uk/images/aws-ec2-hosting/launched.webp"></p>
+<h3>Connecting</h3>
+<p>Let's connect by SSH. The default user is <code>ubuntu</code> if you chose Ubuntu Server, and your IP address can be found on the AWS web console as mentioned above</p>
+<div class="highlight"><pre><span></span><code>$ ssh ubuntu@3.68.196.247 -i aws-key-pair.pem
+</code></pre></div>
+
+<p><img alt="Connected" src="https://rossw.co.uk/images/aws-ec2-hosting/connected.webp"></p>
+<p>All connected via SSH!</p>
+<h3>Summary</h3>
+<p>Hopefully, this guide was easy to follow. AWS is definitely overwhelming at first and there is still a lot I need to learn about it, but as you can see, it's really straight forward to set up with a basic VPS that you can run whatever you need to.</p>
+<p>If any of you have any further questions or suggestions, please get in touch! Contact details be found <a href="https://rossw.co.uk/pages/about.html">here</a>.</p>
+                <section>
+                <p id="post-share-links">
+                    Share on:
+                    <a href="https://twitter.com/intent/tweet?text=How%20to%20setup%20an%20AWS%20EC2%20%28VPS%29%20instance&url=https%3A//rossw.co.uk/how-to-setup-an-aws-ec2-vps-instance.html&hashtags=aws,hosting,vps,ubuntu" title="Share on Twitter">Twitter</a>
+                    ·
+                    <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A//rossw.co.uk/how-to-setup-an-aws-ec2-vps-instance.html" title="Share on Facebook">Facebook</a>
+                    ·
+                    <a href="https://www.reddit.com/submit?url=https%3A//rossw.co.uk/how-to-setup-an-aws-ec2-vps-instance.html&title=How%20to%20setup%20an%20AWS%20EC2%20%28VPS%29%20instance" title="Share via Reddit">Reddit</a>
+                    ·
+                    <a href="mailto:?subject=How%20to%20setup%20an%20AWS%20EC2%20%28VPS%29%20instance&amp;body=https%3A//rossw.co.uk/how-to-setup-an-aws-ec2-vps-instance.html" title="Share via Email">Email</a>
+                </p>
+                </section>
+                <div class="clear"></div>
+
+                <div class="info">
+                    <a href="https://rossw.co.uk/how-to-setup-an-aws-ec2-vps-instance.html">posted at 06:00</a>
+                    &nbsp;&middot;&nbsp;<a href="https://rossw.co.uk/category/hosting.html" rel="tag">Hosting</a>
+                    &nbsp;&middot;
+                    &nbsp;<a href="https://rossw.co.uk/tag/aws.html" class="tags">aws</a>
+                    &nbsp;<a href="https://rossw.co.uk/tag/hosting.html" class="tags">hosting</a>
+                    &nbsp;<a href="https://rossw.co.uk/tag/vps.html" class="tags">vps</a>
+                    &nbsp;<a href="https://rossw.co.uk/tag/ubuntu.html" class="tags">ubuntu</a>
+                </div>
+            </article>            <h4 class="date">May 22, 2021</h4>
+
+            <article class="post">
+                <h2 class="title">
+                    <a href="https://rossw.co.uk/homelab-tour.html" rel="bookmark" title="Permanent Link to &quot;Homelab Tour&quot;">Homelab Tour</a>
+                </h2>
+
+                
+                
+
+                <p>Today, I'm going to be telling you about my small homelab which I started putting together only in November last year. I don't have much space and wanted something quiet and power-efficient. The HPE MicroServer Gen8 seemed very popular online and could be picked up relatively cheaply on the second hand market, but the hardware seems to be showing its age. After a bit of research and an incredible review by <a href="https://www.servethehome.com/hpe-proliant-microserver-gen10-plus-review-this-is-super/">ServeTheHome</a>, I settled on starting out with the HPE MicroServer Gen10 Plus.</p>
+<h3>Hardware</h3>
+<p><strong>HPE MicroServer Gen10 Plus</strong></p>
+<ul>
+<li>CPU: Intel Xeon E-2224</li>
+<li>RAM: 32gb DDR4-2226 ECC (Upgraded from the standard 16gb)</li>
+<li>OS Storage: WD Blue 500gb NVME (PCIe card required)</li>
+<li>Bulk Storage: 4x 4TB WD Red Plus SATA</li>
+</ul>
+<p>The specs are nothing to write home about but it is perfect for my needs (for now) and the form factor is great; it easily fits on a bookshelf. I also purchased the iLO enablement kit which is required to utilise iLO on this particular model.</p>
+<p><strong>Raspberry Pis</strong></p>
+<p>I have a cluster of 4 Raspberry Pi 4B's that used to act as my home lab before I bought something a bit more robust in the MicroServer. My intention for these is to set them up in a kubernetes cluster as workers. I'll probably need to run the master in a virtual machine as they just won't have enough memory for that, but they should be perfectly fine as workers.</p>
+<p><strong>Network Gear</strong></p>
+<p>Right now, I have a fairly cheap ethernet switch and a wireless access point. I am looking to upgrade to a managed switch in the future so if anybody has any recommendations, please let me know!</p>
+<p><strong>UPS - Cyberpower 1500VA/900W</strong></p>
+<p>I chose this one because it wasn't too expensive compared to the other options out there. It gives me plenty of headroom for what I need and also has x2no regular UK plug outlets alongside the x4 EIC C13 which is great for connecting my modem, network switch, and other items that just have a plug.</p>
+<p>It comes with software that allows it to send a shutdown signal to a device if the power is out for a certain amount of time. My server runs 24/7 and being able to have it cleanly shut down if there is a power outage while I'm away or sleeping provides me with peace of mind, which is great.</p>
+<p>The other benefit of a UPS is it always ensures that any connected devices have clean power.</p>
+<h3>Software</h3>
+<p>I'm running <a href="https://www.proxmox.com/en/">Proxmox VE</a> as the OS on the MicroServer. I’ve never used this kind of hypervisor before, but I have found proxmox really easy to get up and running with. There are a whole host of advanced features that I haven't had a chance to dive into yet.</p>
+<p>There are a number of Virtual Machines and LXC Containers that form my homelab:</p>
+<p><img alt="Proxmox Dashboard" src="https://rossw.co.uk/images/homelab-tour/homelab-tour-proxmox-dashboard.webp"></p>
+<p><strong>Virtual Machines</strong></p>
+<ul>
+<li>truenas - This runs <a href="https://www.truenas.com/">TrueNAS Core</a> with the 4x 4TB hard drives passed through to it and serves as my home NAS.</li>
+<li>pfsense - This runs <a href="https://www.pfsense.org/">pfSense Community Edition</a>. I've talked about this in some previous posts where I've discussed setting up <a href="https://rossw.co.uk/openvpn-pfsense.html">OpenVPN</a> and <a href="https://rossw.co.uk/pxeboot-ubuntu-pfsense.html">network booting Ubuntu 21.04</a>.</li>
+<li>atom - This isn't running anything specialised, it's just a standard <a href="https://ubuntu.com/">Ubuntu</a> Server 20.04 VM. I use it mainly for testing, at the moment it's mainly used as a bit of a docker playground.</li>
+</ul>
+<p><strong>Containers</strong></p>
+<p>I try to keep everything in its own single container so that if there are ever any issues, I can just kill the container and create a new one from backup. It makes configuration way more straight forward.</p>
+<ul>
+<li>pihole - A container that just runs <a href="https://pi-hole.net/">pihole</a> for DNS level ad-blocking across my entire network and is also used as DNS for all of my local infrastructure. As an example, I can access truenas by navigating to https://truenas.rossw.co.uk.</li>
+<li>minecraft-e2e - A container running a small minecraft server for some friends.</li>
+<li>jupyter - A container running <a href="https://jupyter.org/">JupyterLab</a> for easy access to notebooks from any of my devices.</li>
+<li>code - A container running <a href="https://github.com/cdr/code-server">VS Code Server</a> which allows access to VS Code from a browser. I don't really use this as much as I used to, but it is handy for not having to configure and install plugins on a device that I'm going to be using infrequently. It is also nice for getting access to a bash shell on devices that don't support that.</li>
+<li>influxdb - A container running an instance of <a href="https://www.influxdata.com/">InfluxDB</a>. I'm currently using this to store temperature data for a project I'm working on where I have a raspberry pi hooked up to a temperature sensor and then a Flask app to display the data. I'm planning to rewrite this project entirely using FastAPI instead of Flask with a JS framework front-end (most likely Vue). Watch this space for updates!</li>
+<li>mongodb - A container running an instance of <a href="https://www.mongodb.com/">MongoDB</a>. I'm not really using this at the moment, I had set it up for use with a project but that is on the back burner right now. It'll get some use eventually.</li>
+<li>jenkins - A container running jenkins, at the moment it is responsible for building and deploying this blog whenever there are any updates! I intend to write about this later in my blog series on deploying this Blog. You can check out <a href="https://rossw.co.uk/blog-setup-part1-terraform.html">part 1</a> now which covers provisioning using terraform.</li>
+<li>irc - A container running <a href="https://weechat.org/">WeeChat</a> for the few times that I do use IRC. I use <a href="https://www.glowing-bear.org/">Glowing Bear</a> as a front end so I can access it from any device. I would definitely recommend this setup for anybody that regularly uses IRC.</li>
+<li>bitwarden - I have only recently set this up with the intention of using it to self host <a href="https://bitwarden.com/">bitwarden</a> and still needs some work, but once it is up and running, I'll be writing a blog post about it. I have written about setting up <a href="https://rossw.co.uk/openvpn-pfsense.html">OpenVPN on pfSense</a> so that once it is all set up, I can access it from anywhere.</li>
+</ul>
+<h3>Summary</h3>
+<p>Well that's everything I'm running! As you can see from the dashboard, I still have a bit of headroom available and have plans in the future to look into setting up <a href="https://bitwarden.com/">Traefik</a>, getting a proper Kubernetes setup going, and some sort of smart home automation. </p>
+<p>If any of you have a homelab or can recommend anything that's worth self hosting, please get in touch! Contact details be found <a href="https://rossw.co.uk/pages/about.html">here</a>.</p>
+                <section>
+                <p id="post-share-links">
+                    Share on:
+                    <a href="https://twitter.com/intent/tweet?text=Homelab%20Tour&url=https%3A//rossw.co.uk/homelab-tour.html&hashtags=homelab,proxmox,microserver" title="Share on Twitter">Twitter</a>
+                    ·
+                    <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A//rossw.co.uk/homelab-tour.html" title="Share on Facebook">Facebook</a>
+                    ·
+                    <a href="https://www.reddit.com/submit?url=https%3A//rossw.co.uk/homelab-tour.html&title=Homelab%20Tour" title="Share via Reddit">Reddit</a>
+                    ·
+                    <a href="mailto:?subject=Homelab%20Tour&amp;body=https%3A//rossw.co.uk/homelab-tour.html" title="Share via Email">Email</a>
+                </p>
+                </section>
+                <div class="clear"></div>
+
+                <div class="info">
+                    <a href="https://rossw.co.uk/homelab-tour.html">posted at 14:30</a>
+                    &nbsp;&middot;&nbsp;<a href="https://rossw.co.uk/category/homelab.html" rel="tag">Homelab</a>
+                    &nbsp;&middot;
+                    &nbsp;<a href="https://rossw.co.uk/tag/homelab.html" class="tags">homelab</a>
+                    &nbsp;<a href="https://rossw.co.uk/tag/proxmox.html" class="tags">proxmox</a>
+                    &nbsp;<a href="https://rossw.co.uk/tag/microserver.html" class="tags">microserver</a>
+                </div>
+            </article>            <h4 class="date">May 16, 2021</h4>
+
+            <article class="post">
+                <h2 class="title">
+                    <a href="https://rossw.co.uk/pycon-us-2021.html" rel="bookmark" title="Permanent Link to &quot;PyCon US 2021 - My Thoughts&quot;">PyCon US 2021 - My Thoughts</a>
+                </h2>
+
+                
+                
+
+                <p>PyCon US 2021 was online this year due to the current global situation so I thought I'd take advantage of this opportunity to virtually attend as it's unlikely I'll be able to attend future US conferences in person.</p>
+<p>I've never attended a conference before either in person or online so I want to give my thoughts on conferences as a newbie.</p>
+<p>All of the talks I was able to watch live were fantastic but some definitely stood out to me so I'm going to give my thoughts on these. There were multiple tracks so unfortunately I didn't get to watch all the talks I wanted to see live as there were some scheduling clashes, sometimes 3 at a time! This should give you an idea of how interesting the talks were.</p>
+<h3>Overview</h3>
+<p>Obviously with this being online I wasn't able to get the full conference experience but it was a great opportunity to dip my toe in the water and see if it was something that I would like to experience in person in the future. </p>
+<p>I primarily just watched the talks however the online platform they used was great, after each talk there was an opportunity to join a virtual room with the person that gave the talk for a live Q&amp;A session and there was a live chat during the talk to ask questions and engage with other members of the community.</p>
+<p>There were also lounges for networking and sponsor booths where you could drop in to ask questions through out the entirety of the event.</p>
+<p>The online experience has definitely wet my appetite for attending something like this in person in future to get the full in person experience - I'm looking at you <a href="https://twitter.com/pyconuk?lang=en">PyCon UK</a>!</p>
+<h3>Highlights</h3>
+<p>As I mentioned earlier all of the talks were great but these are some of the ones that stood out to me in particular. </p>
+<hr>
+<p><strong><a href="https://www.youtube.com/watch?v=z_hm5oX7ZlE">Day 1 Keynote - Robert Erdmann</a></strong></p>
+<p>Robert Erdmann has been using python to create an extremely high resolution image of Rembrandt's Night Watch painting. The final image will be 925,000px x 775,000px, that translates to each pixel representing 5 µm of the painting.</p>
+<p>This image has not been released to the public yet but there is a <a href="http://hyper-resolution.org/Nightwatch">20 µm version</a> available which in itself is incredible so I cannot wait to see the new higher resolution version!</p>
+<p>The number of moving parts involved in producing these images was mind blowing. Here are just a few:</p>
+<ul>
+<li>Due to the operating range of the camera to retrieve a sharp image was so small that he first had to produce a 3D scan of the painting to take into account it's topology. This allowed them to adjust the position and angle of the camera to get a sharp image.</li>
+<li>The use of machine learning to assess the quality of each image.</li>
+<li>ML to stitch the final image together, skewing each individual photograph as required and decided which image to use where pixel values were contested due to overlaps.</li>
+</ul>
+<p>The talk needs to be seen purely to see how python as a programming language can be utilised for so many different aspects of a project from controlling the position of the camera to performing analysis on each image.</p>
+<hr>
+<p><strong><a href="https://www.youtube.com/watch?v=3of9pY2vovA">From 3 to 300 fps: NES Emulation in Python and Cython - James Murphy</a></strong></p>
+<p>I didn't expect to enjoy this talk quite as much as I did but it was a great insight into just how flexible python is (I'd never expected it to be able to be used for an emulator) and how it can be optimised using the likes of Cython to see huge performance gains.</p>
+<p>The finished emulator using CPython at first only ran at 2-3 fps but after a few days of optimisation utilising Cython it was running at over 300 fps. These performance gains are astonishing, it shows just how versatile python can be and that "python is slow" might not always be true with a little extra work.</p>
+<hr>
+<p><strong><a href="https://www.youtube.com/watch?v=W7f52FhfYqQ">Intro to Pydantic, run-time type checking for your dataclasses - Alexander Hultnér</a></strong></p>
+<p>I'd heard of pydantic but it's not something I've got round to exploring yet. Alexander's talk was a fantastic introduction and really engaging. He used a very basic example of a Waffle House to clearly portray the benefits and uses of pydantic.</p>
+<p>JSON is a first class citizen in pydantic and Alexander demonstrated how it can be utilised for creating APIs. It's definitely a tool that I'm going to utilise in the near future, most likely with Fast API which I will come onto next!</p>
+<p>If like me you have heard of pydantic and aren't sure what it's about, why you might need it and how it can be used I'd definitely recommend checking out this talk. Alexander does a great job of explaining it in a beginner friendly manner which makes it feel much less daunting for getting started with.</p>
+<hr>
+<p><strong><a href="https://www.youtube.com/watch?v=_jh4Wc3CE38">An Introduction to FastAPI - Thomas Jewitt</a></strong></p>
+<p>FastAPI is something that I've been aware of for a while and the general consensus was that is is the next big thing but I wasn't entirely sure <em>why</em> it was so amazing. Thomas did a great job of explaining the features &amp; benefits of FastAPI and how quick it is to get up and running.</p>
+<p>Some of the stand out features to me were:</p>
+<ul>
+<li>It's use of pydantic for validation.</li>
+<li>Automatic generation of documentation based on the OpenAPI specification.</li>
+<li>It's pythonic as it utilises pythons type hinting.</li>
+</ul>
+<p>This talk has definitely given me the push to bump FastAPI further up my ever growing list of things to learn and try. </p>
+<p>I don't think this will completely replace Flask in the web framework world as they seem to fill different niches. 
+If you are going to use a front-end framework such as React or Vue it definitely makes sense to go with FastAPI but if you just want to build a web app with python, HTML, CSS and JS then I'd say Flask still has it's place. This opinion might change once I start using FastAPI but only time will tell. Let me know what your thoughts are.</p>
+<hr>
+<h3>Final Thoughts</h3>
+<p>I thoroughly enjoyed PyCon US 2021 even if I didn't take advantage of everything that was available. There was a large variety of talks and some that I didn't get to watch live due to scheduling clashes but I definitely intend to watch these at a later date.</p>
+<p>It's made me excited for next year and being able to attend conferences in person when things return to normal.</p>
+<p>Did you attend PyCon US 2021? If so, let me know which your favourite talks were and why! Contact details be found <a href="https://rossw.co.uk/pages/about.html">here</a>.</p>
+                <section>
+                <p id="post-share-links">
+                    Share on:
+                    <a href="https://twitter.com/intent/tweet?text=PyCon%20US%202021%20-%20My%20Thoughts&url=https%3A//rossw.co.uk/pycon-us-2021.html&hashtags=python,pycon,conference" title="Share on Twitter">Twitter</a>
+                    ·
+                    <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A//rossw.co.uk/pycon-us-2021.html" title="Share on Facebook">Facebook</a>
+                    ·
+                    <a href="https://www.reddit.com/submit?url=https%3A//rossw.co.uk/pycon-us-2021.html&title=PyCon%20US%202021%20-%20My%20Thoughts" title="Share via Reddit">Reddit</a>
+                    ·
+                    <a href="mailto:?subject=PyCon%20US%202021%20-%20My%20Thoughts&amp;body=https%3A//rossw.co.uk/pycon-us-2021.html" title="Share via Email">Email</a>
+                </p>
+                </section>
+                <div class="clear"></div>
+
+                <div class="info">
+                    <a href="https://rossw.co.uk/pycon-us-2021.html">posted at 14:48</a>
+                    &nbsp;&middot;&nbsp;<a href="https://rossw.co.uk/category/python.html" rel="tag">Python</a>
+                    &nbsp;&middot;
+                    &nbsp;<a href="https://rossw.co.uk/tag/python.html" class="tags">python</a>
+                    &nbsp;<a href="https://rossw.co.uk/tag/pycon.html" class="tags">pycon</a>
+                    &nbsp;<a href="https://rossw.co.uk/tag/conference.html" class="tags">conference</a>
+                </div>
+            </article>            <h4 class="date">May 08, 2021</h4>
+
+            <article class="post">
+                <h2 class="title">
+                    <a href="https://rossw.co.uk/top5-vscode-ext.html" rel="bookmark" title="Permanent Link to &quot;My top 5 VS Code Extensions&quot;">My top 5 VS Code Extensions</a>
+                </h2>
+
+                
+                
+
+                <p>VS Code is a fantastic text editor and has gained an incredible amount of popularity.
+I imagine most of you reading this probably use VS Code.
+It has a huge ecosystem of extensions, isn't better suited for one language over another and runs on pretty much all platforms. </p>
+<p>So as a bit more of a fun post this week here are my top 5 VS Code extensions (in no particular order) and why I love them.</p>
+<ul>
+<li><a href="https://marketplace.visualstudio.com/items?itemName=vscodevim.vim">Vim</a></li>
+<li><a href="https://marketplace.visualstudio.com/items?itemName=sainnhe.gruvbox-material">Gruvbox Material</a></li>
+<li><a href="https://marketplace.visualstudio.com/items?itemName=s-nlf-fh.glassit">GlassIt-VSC</a></li>
+<li><a href="https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer">Live Server</a></li>
+<li><a href="https://marketplace.visualstudio.com/items?itemName=patbenatar.advanced-new-file">advanced-new-file</a></li>
+</ul>
+<h3>Vim</h3>
+<p>Most of you probably know what vim is, what this extension does it add vim functionality to VS Code. It can be a bit overwhelming at first but once you get used to it navigating &amp; editing files becomes much quicker than clicking around with your mouse or using your arrow keys to navigate. </p>
+<p>I would definitely recommend that you give this a go, there is a bit of a learning curve but stick with it and you won't regret it!</p>
+<h3>Gruvbox Material</h3>
+<p>Gruvbox is an extremely popular color scheme from vim and with this extension you can get it in VS Code.</p>
+<p>It might not be very everybody but I love it because the low contrast makes it easier to look at for long periods of time.</p>
+<p><img alt="gruvbox" src="https://rossw.co.uk/images/top5-vscode-ext/gruvbox.webp"></p>
+<h3>GlassIt-VSC</h3>
+<p>GlassIt-VSC allows you to easily make the VS Code windows transparent and easily adjust it to suit your personal preferences.</p>
+<p>This is definitely a personal aesthetic choice but I've always liked a bit of transparency for my terminal and now I can have it in VS Code too.</p>
+<p>You can see this in the screenshot above in the Gruvbox Material section.</p>
+<h3>Live Server</h3>
+<p>Live Server allows you to quickly and easily launch a local web development server. 
+It even has a live reload feature so any changes that you make to your website will automatically update in your web browser.</p>
+<p>This makes working on websites in VS Code incredibly convenient. Every little helps when you are spending countless hours tweaking CSS to get your website looking just right.</p>
+<h3>advanced-new-file</h3>
+<p>This allows you to easily create new files and folders anywhere in your workspace without having to navigate through the file explorer. Just use a quick keyboard shortcut <code>ctrl+alt+n</code> and type the location of the file or folder you'd like to create and it's done!</p>
+<p>If you use this in conjunction with <code>ctrl+p</code> to open any file in your workspace and the vim extension then your hands never have to leave the keyboard. Pretty neat!</p>
+<h3>Summary</h3>
+<p>Those are my top 5 extensions. Hopefully there are some in there that you haven't heard of before and will check out for yourselves.</p>
+<p>What are your favourite VS Code extensions? Get in touch via e-mail or twitter. Contact details be found <a href="https://rossw.co.uk/pages/about.html">here</a>.</p>
+                <section>
+                <p id="post-share-links">
+                    Share on:
+                    <a href="https://twitter.com/intent/tweet?text=My%20top%205%20VS%20Code%20Extensions&url=https%3A//rossw.co.uk/top5-vscode-ext.html&hashtags=programming,vscode" title="Share on Twitter">Twitter</a>
+                    ·
+                    <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A//rossw.co.uk/top5-vscode-ext.html" title="Share on Facebook">Facebook</a>
+                    ·
+                    <a href="https://www.reddit.com/submit?url=https%3A//rossw.co.uk/top5-vscode-ext.html&title=My%20top%205%20VS%20Code%20Extensions" title="Share via Reddit">Reddit</a>
+                    ·
+                    <a href="mailto:?subject=My%20top%205%20VS%20Code%20Extensions&amp;body=https%3A//rossw.co.uk/top5-vscode-ext.html" title="Share via Email">Email</a>
+                </p>
+                </section>
+                <div class="clear"></div>
+
+                <div class="info">
+                    <a href="https://rossw.co.uk/top5-vscode-ext.html">posted at 13:45</a>
+                    &nbsp;&middot;&nbsp;<a href="https://rossw.co.uk/category/programming.html" rel="tag">Programming</a>
+                    &nbsp;&middot;
+                    &nbsp;<a href="https://rossw.co.uk/tag/programming.html" class="tags">programming</a>
+                    &nbsp;<a href="https://rossw.co.uk/tag/vscode.html" class="tags">vscode</a>
+                </div>
+            </article>            <h4 class="date">May 01, 2021</h4>
+
+            <article class="post">
+                <h2 class="title">
+                    <a href="https://rossw.co.uk/python-project-setup.html" rel="bookmark" title="Permanent Link to &quot;Setting up an environment for a new python project&quot;">Setting up an environment for a new python project</a>
+                </h2>
+
+                
+                
+
+                <p>Somebody recently asked me the steps I take to setup my environment for a new python project so I thought I'd write a small post on this topic because it might be beneficial to others.</p>
+<p>There are a lot of tools out there such a venv, pipenv and poetry for managing your python environments. </p>
+<p>I like to use venv personally as it is built in to python and simple enough to use.</p>
+<h3>Create a git repository</h3>
+<p>Lately I always use github for any projects even if they are just personal and I want to keep them private. </p>
+<p>You never know if at some point you'll want to make them public and the added piece of mind of having a copy of the code online is a huge benefit.</p>
+<p>So since we are going to use github, it's easier to just create the repository on github and clone it rather than going through the dance of git init,renaming the branch to main, git remote add origin. </p>
+<p>You also get a few added benefits such as github creating the README, .gitignore and LICENSE for you.</p>
+<p><img alt="Create a new respository" src="https://rossw.co.uk/images/python-project-setup/create-github-repo.webp"></p>
+<p>I like to use the MIT License but feel free to <a href="https://choosealicense.com/">choose</a> which one suits you the most. </p>
+<h3>Clone the repository</h3>
+<p>Now that we have created the repository on github it's time to clone it.</p>
+<p>Click the green code button and copy the link. Here I am using SSH but if you don't have SSH keys setup, feel free to use HTTPS. I might cover SSH in another blog post at some point if any of you feel that would be beneficial.</p>
+<p><img alt="Create a new respository" src="https://rossw.co.uk/images/python-project-setup/clone-github-repo.webp"></p>
+<p>Now we have the link, we just use git clone on the command line. I save all my projects in a folder in my home directory named python.</p>
+<div class="highlight"><pre><span></span><code>~/python$ git clone git@github.com:rosswf/my-awesome-project.git
+Cloning into &#39;my-awesome-project&#39;...
+remote: Enumerating objects: 5, done.
+remote: Counting objects: 100% (5/5), done.
+remote: Compressing objects: 100% (4/4), done.
+remote: Total 5 (delta 0), reused 0 (delta 0), pack-reused 0
+Receiving objects: 100% (5/5), done.
+
+~/python$ cd my-awesome-project/
+
+~/python/my-awesome-project$ ls -l
+total 67
+drwxrwxr-x  3 ross ross    6 May  1 12:36 ./
+drwxrwxr-x 10 ross ross   16 May  1 12:36 ../
+drwxrwxr-x  8 ross ross   13 May  1 12:36 .git/
+-rw-rw-r--  1 ross ross 1799 May  1 12:36 .gitignore
+-rw-rw-r--  1 ross ross 1061 May  1 12:36 LICENSE
+-rw-rw-r--  1 ross ross   47 May  1 12:36 README.md
+
+~/python/my-awesome-project$ git status
+On branch main
+Your branch is up-to-date with &#39;origin/main&#39;.
+
+nothing to commit, working tree clean
+</code></pre></div>
+
+<p>There we go, the repository has been cloned and we can see all the files that github created for us. Using <code>git status</code> we can also see we are up to date with origin/main.</p>
+<h3>Creating and activating a virtual environment</h3>
+<p><strong>Create the virtual environment</strong></p>
+<p>Here we are running the venv module and telling to use venv as the name for our virtual environment but feel free to change this to something else if you'd like.</p>
+<div class="highlight"><pre><span></span><code>~/python/my-awesome-project$ python3 -m venv venv
+
+~/python/my-awesome-project$ ll
+total 84
+drwxrwxr-x  4 ross ross    7 May  1 12:41 ./
+drwxrwxr-x 10 ross ross   16 May  1 12:36 ../
+drwxrwxr-x  8 ross ross   13 May  1 12:38 .git/
+-rw-rw-r--  1 ross ross 1799 May  1 12:36 .gitignore
+-rw-rw-r--  1 ross ross 1061 May  1 12:36 LICENSE
+-rw-rw-r--  1 ross ross   47 May  1 12:36 README.md
+drwxrwxr-x  6 ross ross    8 May  1 12:41 venv/
+</code></pre></div>
+
+<p>We can see the venv folder has been created. Don't worry about the contents of this too much, it's basically taken a copy of the python interpreter and it's where any packages will be installed while the environment is active. The only thing that we actually need to worry about is the script for activating.</p>
+<p><strong>Activate the virtual environment</strong></p>
+<div class="highlight"><pre><span></span><code>~/python/my-awesome-project$ source venv/bin/activate
+
+(venv) ~/python/my-awesome-project$
+</code></pre></div>
+
+<p>You can tell it's worked because the name of the virtual environment will be added to the beginning of your shell prompt. In this case <code>(venv)</code>. </p>
+<p>Note that the above is for activating it on <strong>linux</strong>. If you were using command prompt on <strong>windows</strong> you would simply run the activate.bat located in the Scripts folder. </p>
+<p>You can find more information on activating for your specific shell in the <a href="https://docs.python.org/3/library/venv.html">documentation</a></p>
+<div class="highlight"><pre><span></span><code>C:\python\my-awesome-project\&gt; venv\Scripts\activate.bat
+</code></pre></div>
+
+<p><em>If you ever want to deactivate the virtual environment you just need to type <code>deactivate</code>.</em></p>
+<p>That's pretty much all that's required. We now have everything we need to start writing some code:</p>
+<ul>
+<li>A git repository that we can easily push to github</li>
+<li>A clean virtual environment to begin installing packages</li>
+</ul>
+<h3>Installing packages and generating requirements.txt</h3>
+<p>Since most projects will typically use packages from PyPI next we will install the ones we require and generate a requirements.txt file which will make it easier for anybody else that wants to use our project to quickly and easily install all the required packages.</p>
+<p>As an example I'm going to install Flask.</p>
+<div class="highlight"><pre><span></span><code>(venv) ~/python/my-awesome-project$ pip install flask
+[...]
+Installing collected packages: click, MarkupSafe, Jinja2, Werkzeug, itsdangerous, flask
+Successfully installed Jinja2-2.11.3 MarkupSafe-1.1.1 Werkzeug-1.0.1 click-7.1.2 flask-1.1.2 itsdangerous-1.1.0
+
+(venv) ~/python/my-awesome-project$ pip freeze &gt; requirements.txt
+
+(venv) ~/python/my-awesome-project$ cat requirements.txt 
+click==7.1.2
+Flask==1.1.2
+itsdangerous==1.1.0
+Jinja2==2.11.3
+MarkupSafe==1.1.1
+Werkzeug==1.0.1
+</code></pre></div>
+
+<p>There we go, Flask and all of it's dependencies are installed and are now listed in our requirements.txt. </p>
+<p>This is why a virtual environment is great! You can install just the packages and any specific versions you need for that particular project and easily generate the requirements.txt file.</p>
+<h3>Push to github</h3>
+<p>Although we haven't written any code yet I'm going commit and push the requirements.txt to github.</p>
+<div class="highlight"><pre><span></span><code>(venv) ~/python/my-awesome-project$ git add requirements.txt
+
+(venv) ~/python/my-awesome-project$ git commit -m &quot;Add requirements.txt&quot;
+[main aa1b945] Add requirements.txt
+ 1 file changed, 6 insertions(+)
+ create mode 100644 requirements.txt
+
+(venv) ~/python/my-awesome-project$ git push
+Enumerating objects: 4, done.
+Counting objects: 100% (4/4), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 356 bytes | 356.00 KiB/s, done.
+Total 3 (delta 1), reused 0 (delta 0), pack-reused 0
+remote: Resolving deltas: 100% (1/1), completed with 1 local object.
+To github.com:rosswf/my-awesome-project.git
+   1ba307f..aa1b945  main -&gt; main
+</code></pre></div>
+
+<p>The above pattern is how files that have been added or modified would be committed and pushed to the repository:</p>
+<ul>
+<li><code>git add &lt;files&gt;</code> - Stage the files ready to be committed</li>
+<li><code>git commit -m "My sensible commit message"</code> - Commit the files with a sensible message</li>
+<li><code>git push</code> - Push to github</li>
+</ul>
+<p><code>git status</code> is also an extremely useful command. Try running this before each of the steps above and see what the output is.</p>
+<p><img alt="Final github repository" src="https://rossw.co.uk/images/python-project-setup/final-github-repo.webp"></p>
+<p>After checking our repo on github we can see that the requirements.txt file is there along with our commit message!</p>
+<h3>Summary</h3>
+<p>Hopefully the above was useful in helping you get setup with a clean environment for the next python project you are working on. </p>
+<p>As I mentioned at the start there are numerous ways to go about this with all sorts of different tools created by the community. </p>
+<p>Let me know what you use! Contact details be found <a href="https://rossw.co.uk/pages/about.html">here</a>.</p>
+                <section>
+                <p id="post-share-links">
+                    Share on:
+                    <a href="https://twitter.com/intent/tweet?text=Setting%20up%20an%20environment%20for%20a%20new%20python%20project&url=https%3A//rossw.co.uk/python-project-setup.html&hashtags=python,venv,git,github,pip" title="Share on Twitter">Twitter</a>
+                    ·
+                    <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A//rossw.co.uk/python-project-setup.html" title="Share on Facebook">Facebook</a>
+                    ·
+                    <a href="https://www.reddit.com/submit?url=https%3A//rossw.co.uk/python-project-setup.html&title=Setting%20up%20an%20environment%20for%20a%20new%20python%20project" title="Share via Reddit">Reddit</a>
+                    ·
+                    <a href="mailto:?subject=Setting%20up%20an%20environment%20for%20a%20new%20python%20project&amp;body=https%3A//rossw.co.uk/python-project-setup.html" title="Share via Email">Email</a>
+                </p>
+                </section>
+                <div class="clear"></div>
+
+                <div class="info">
+                    <a href="https://rossw.co.uk/python-project-setup.html">posted at 13:12</a>
+                    &nbsp;&middot;&nbsp;<a href="https://rossw.co.uk/category/python.html" rel="tag">Python</a>
+                    &nbsp;&middot;
+                    &nbsp;<a href="https://rossw.co.uk/tag/python.html" class="tags">python</a>
+                    &nbsp;<a href="https://rossw.co.uk/tag/venv.html" class="tags">venv</a>
+                    &nbsp;<a href="https://rossw.co.uk/tag/git.html" class="tags">git</a>
+                    &nbsp;<a href="https://rossw.co.uk/tag/github.html" class="tags">github</a>
+                    &nbsp;<a href="https://rossw.co.uk/tag/pip.html" class="tags">pip</a>
+                </div>
+            </article>
+
+                <div class="clear"></div>
+                <div class="pages">
+
+
+                    <a href="https://rossw.co.uk/page/2/" class="next_page">Next&nbsp;&rarr;</a>
+
+                    <span>Page 1 of 2</span>
+                </div>
+
+            <div class="clear"></div>
+            <footer>
+                <p>
+                <a href="https://github.com/rosswf"><img src="https://rossw.co.uk/theme/images/GitHub-Mark-32px.webp" alt="My Github" width="32" height="32"></a>
+                <a href="https://twitter.com/rossw_"><img src="https://rossw.co.uk/theme/images/2021-Twitter-logo-black.webp" alt="My Twitter" width="32" height="26"></a>
+                </p>
+                <p>
+                Modified <a href="https://github.com/jody-frankowski/blue-penguin">Blue Penguin</a> Theme
+                &middot;
+                Powered by <a href="http://getpelican.com">Pelican</a>
+                &middot;
+                <a href="https://rossw.co.uk/feeds/all.rss.xml" rel="alternate">Rss Feed</a>
+            </footer>
+        </div>
+        <div class="clear"></div>
+    </div>
+    <a href="https://github.com/rosswf" class="github-corner" aria-label="View source on GitHub"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#15A9DB; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+</body>
+</html>

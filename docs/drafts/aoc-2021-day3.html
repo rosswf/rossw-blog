@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>
+RossW.co.uk | Personal Update & Advent of Code 2021 - Day 3    </title>
+    <link rel="shortcut icon" type="image/png" href="https://rossw.co.uk/favicon.png">
+    <link rel="shortcut icon" type="image/x-icon" href="https://rossw.co.uk/favicon.ico">
+    <link href="https://rossw.co.uk/feeds/all.rss.xml" type="application/rss+xml" rel="alternate" title="RossW.co.uk Full RSS Feed" />
+    <link rel="stylesheet" href="https://rossw.co.uk/theme/css/main.css" type="text/css" />
+    <link rel="stylesheet" href="https://rossw.co.uk/theme/css/pygments.css" type="text/css" />
+    <meta name="generator" content="Pelican" />
+    <meta name="author" content="Ross" />
+
+    <meta name="keywords" content="programming,aoc,python,personal" />
+    <meta name="description" content="Advent of Code 2021 - Day 3" />
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="https://rossw.co.uk/">Home</a></li>
+                <li><a href="https://rossw.co.uk/pages/about.html">About</a></li>
+                <li><a href="https://rossw.co.uk/archive">Archives</a></li>
+            </ul>
+        </nav>
+        <div class="header_box">
+            <h1><a href="https://rossw.co.uk/">RossW.co.uk</a></h1>
+            <h2>Programming, DevOps, Homelabs & more</h2>
+        </div>
+    </header>
+    <div id="wrapper">
+        <div id="content">            <h4 class="date">May 22, 2022</h4>
+
+            <article class="post">
+                <h2 class="title">
+                    <a href="https://rossw.co.uk/drafts/aoc-2021-day3.html" rel="bookmark" title="Permanent Link to &quot;Personal Update & Advent of Code 2021 - Day 3&quot;">Personal Update & Advent of Code 2021 - Day 3</a>
+                </h2>
+
+                
+                
+
+                <h3>Personal Update</h3>
+<p>As you can see the plan to follow along with Advent of Code 2021 each day in December didn't quite work it. Programming and blogging had to take a back seat for a while due to personal reasons, part of which was starting a new job.
+This new chapter is extremely exciting but for a while I didn't have much free time however I am now back to programming and what better way to get back into it than to pick up where I left off with Advent of Code, so let's
+get into Day 3!</p>
+<p><strong>Spoiler Warning: This post contains spoilers for Advent of Code Day 3.</strong></p>
+<p>As you may remember from my <a href="https://rossw.co.uk/drafts/aoc-2021-day1.html">first post</a> on Day 1 the plan initially was to try to utilise as many of the new features of python 3.10 as a I could. However it's been quite a few months
+since I've touched python so I'm going to relax this self-imposed constraint and just take things as they come until I can get back into the swing of things. The quality of my code may also be a little lacking for a bit but I can
+live with that, these things unfortunately do happen and I'm extremely out of practice.</p>
+<h3>Part 1</h3>
+<p>The input for this challenge is a report, each line consisting of a binary number..</p>
+<p>The task for part 1 was to calculate the power consumption which is the product of the Gamma Rate and Epsilon Rate. The Gamma Rate is calculated by taking the most common bit (1 or 0) from each position/column within the report. The Epsilon Rate is the inverse of this and uses the least common bit.</p>
+<p>First of all I defined a function to read the file and parse the input. Thankfully there wasn't really much parsing that needed to be performed for this challenge as each value from the report was on it's own line so it was sufficient to read all the lines and then strip the new line characters. I kept the binary numbers as strings as it made it easier for me to iterate over them and check the values in each position.</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">parse_input</span><span class="p">(</span><span class="n">filename</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Parses the file given by filename and returns the report as a list of numbers</span>
+<span class="sd">    as strings.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">report</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+    <span class="n">report</span> <span class="o">=</span> <span class="p">[</span><span class="n">number</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">number</span> <span class="ow">in</span> <span class="n">report</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">report</span>
+</code></pre></div>
+
+<p>Now that I have the report as a list of strings I can start by getting the most common bits in each position for the Gamma Rate. I used zip to transpose the report to make it possible to count how many 0's and 1's there were in a given position.</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">get_most_common_bits</span><span class="p">(</span><span class="n">report</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Takes the report and calculates the most common bits in each column,</span>
+<span class="sd">    this is then returned as a string.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">transposed</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">report</span><span class="p">)</span>
+    <span class="n">most_common_bits</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="s2">&quot;1&quot;</span> <span class="k">if</span> <span class="n">number</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;1&quot;</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">number</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;0&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;0&quot;</span> <span class="k">for</span> <span class="n">number</span> <span class="ow">in</span> <span class="n">transposed</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">most_common_bits</span>
+</code></pre></div>
+
+<p>Then for the Epsilon Rate I need the least common bits. I thought the easiest way to do this was just to flip the bits used for the Gamma Rate.</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">get_least_common_bits</span><span class="p">(</span><span class="n">most_common_bits</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Uses the number from most_common_bits and flips each bit to return</span>
+<span class="sd">    the least common bits in each column as a string.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">least_common_bits</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;1&quot;</span> <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="s2">&quot;0&quot;</span> <span class="k">else</span> <span class="s2">&quot;0&quot;</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">most_common_bits</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">least_common_bits</span>
+</code></pre></div>
+
+<p>After this it was just a case of putting it all together. Converting the binary numbers as strings to integers and then multiplying them together to get the power consumption.</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">part_1</span><span class="p">(</span><span class="n">report</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Uses the report to calculate the answer for part 1.&quot;&quot;&quot;</span>
+    <span class="n">most_common_bits</span> <span class="o">=</span> <span class="n">get_most_common_bits</span><span class="p">(</span><span class="n">report</span><span class="p">)</span>
+    <span class="n">least_common_bits</span> <span class="o">=</span> <span class="n">get_least_common_bits</span><span class="p">(</span><span class="n">most_common_bits</span><span class="p">)</span>
+
+    <span class="n">gamma_rate</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">most_common_bits</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">epsilon_rate</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">least_common_bits</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+    <span class="n">power_consumption</span> <span class="o">=</span> <span class="n">gamma_rate</span> <span class="o">*</span> <span class="n">epsilon_rate</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Part 1: </span><span class="si">{</span><span class="n">power_consumption</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<h3>Part 2</h3>
+<p>As is typical for part 2 of Advent of Code it builds on Part 1. The goal of this part was to calculate the life support rating. This is the product of the Oxygen Generator Rating and the CO2 Scrubber Rating.
+Each of these are calculated in a similar way. For the Oxygen Generator Rating the most common bit in each position is calculated and then values that do not have this bit are removed from the report. This is repeated for the 2nd position, 3rd position etc. until there is only one value left which is the Oxygen Generator Rating. This was complicated a little bit as the most common bit had to be calculated on the report <em>after</em> values had been removed so it was not as simple as using the value from Part 1. The Advent of Code instructions provide a better explanation of this process than I can.</p>
+<p>The CO2 Scrubber Rating is the same as the Oxygen Generator Rating but using the least common bit.</p>
+<p>First I'll start with the Oxygen Generator Rating. This is where how rusty I am with python really showed itself. I'm sure that this could be done in a simpler and efficient manner. I basically looped through each position, calculated the most common bit at that point, then built a new list containing only the values that contained the most common bit in this position. I then iterated over the new list for the next position and repeated this process until there was only one value left.</p>
+<p>I had to add a guard clause to return if there was only one value left in the report as this could happen before reaching the final position.</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">get_oxygen_rating</span><span class="p">(</span><span class="n">report</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Calculates the oxygen rating from the report using the most_common_bits function</span>
+<span class="sd">    to filter out numbers that only contain the most common bit in each position</span>
+<span class="sd">    until only one number is left. Each time numbers are filtered out, the most common bit is recalculated on the remaining</span>
+<span class="sd">    numbers from the report for a given position.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">report</span><span class="p">[</span><span class="mi">0</span><span class="p">])):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">report</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">report</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">most_common_bits</span> <span class="o">=</span> <span class="n">get_most_common_bits</span><span class="p">(</span><span class="n">report</span><span class="p">)</span>
+        <span class="n">working_report</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">number</span> <span class="k">for</span> <span class="n">number</span> <span class="ow">in</span> <span class="n">report</span> <span class="k">if</span> <span class="n">number</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="n">most_common_bits</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="p">]</span>
+        <span class="n">report</span> <span class="o">=</span> <span class="n">working_report</span><span class="p">[:]</span>
+    <span class="k">return</span> <span class="n">working_report</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</code></pre></div>
+
+<p>Then for the CO2 Scrubber Rating it was very similar but because of how I had setup the process of finding the least common bits I had to calculate the most common bits each time and then flip them. There is also a lot of repition between this function and the previous one so I'm sure some of this could be refactored. However since it was only repeated twice I think it's okay, if there were three or more functions with very similar code I definitely would have refactored.</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">get_co2_rating</span><span class="p">(</span><span class="n">report</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Calculates the co2 rating from the report using the least_common_bits function</span>
+<span class="sd">    to filter out numbers that only contain the least common bit in each position until only</span>
+<span class="sd">    one number is left. Each time numbers are filtered out, the least common bit is</span>
+<span class="sd">    recalculated on the remaining numbers from the report for a given position.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">report</span><span class="p">[</span><span class="mi">0</span><span class="p">])):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">report</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">report</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">most_common_bits</span> <span class="o">=</span> <span class="n">get_most_common_bits</span><span class="p">(</span><span class="n">report</span><span class="p">)</span>
+        <span class="n">least_common_bits</span> <span class="o">=</span> <span class="n">get_least_common_bits</span><span class="p">(</span><span class="n">most_common_bits</span><span class="p">)</span>
+        <span class="n">working_report</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">number</span> <span class="k">for</span> <span class="n">number</span> <span class="ow">in</span> <span class="n">report</span> <span class="k">if</span> <span class="n">number</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="n">least_common_bits</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="p">]</span>
+        <span class="n">report</span> <span class="o">=</span> <span class="n">working_report</span><span class="p">[:]</span>
+    <span class="k">return</span> <span class="n">report</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</code></pre></div>
+
+<p>Then putting it together and multiplying the Oxygen Generator Rating and CO2 Scrubber Rating.</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">part_2</span><span class="p">(</span><span class="n">report</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Uses the report to calculate the answer for part 2.&quot;&quot;&quot;</span>
+    <span class="n">oxygen_rating</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">get_oxygen_rating</span><span class="p">(</span><span class="n">report</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">co2_rating</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">get_co2_rating</span><span class="p">(</span><span class="n">report</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span>
+
+    <span class="n">life_support_rating</span> <span class="o">=</span> <span class="n">oxygen_rating</span> <span class="o">*</span> <span class="n">co2_rating</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Part 2: </span><span class="si">{</span><span class="n">life_support_rating</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<h3>Summary</h3>
+<p>Then finally actually running all the code to calculate the solutions.</p>
+<div class="highlight"><pre><span></span><code><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">test_file_path</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s2">&quot;test_input.txt&quot;</span>
+    <span class="n">input_file_path</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s2">&quot;input.txt&quot;</span>
+
+    <span class="n">report</span> <span class="o">=</span> <span class="n">parse_input</span><span class="p">(</span><span class="n">input_file_path</span><span class="p">)</span>
+
+    <span class="n">part_1</span><span class="p">(</span><span class="n">report</span><span class="p">)</span>
+    <span class="n">part_2</span><span class="p">(</span><span class="n">report</span><span class="p">)</span>
+</code></pre></div>
+
+<p>It feels great to finally get back into Python again and write some code, I'm definitely aware of the need to improve my problem solving skills but that's the whole purpose of Advent of Code. If anybody has any suggestions for how this could be made more efficient please get in touch via e-mail or twitter. Contact details be found <a href="https://rossw.co.uk/pages/about.html">here</a>.</p>
+<p><strong><em>Links</em></strong></p>
+<p>If you want to take part here is the link for <a href="https://adventofcode.com/2021/day/3">day 3</a>.</p>
+<p>My solution can be found on <a href="https://github.com/rosswf/AdventOfCode2021/blob/main/day3/solution.py">github</a>.</p>
+                <div class="clear"></div>
+
+                <div class="info">
+                    <a href="https://rossw.co.uk/drafts/aoc-2021-day3.html">posted at 18:30</a>
+                    &nbsp;&middot;&nbsp;<a href="https://rossw.co.uk/category/programming.html" rel="tag">Programming</a>
+                    &nbsp;&middot;
+                    &nbsp;<a href="https://rossw.co.uk/tag/programming.html" class="tags">programming</a>
+                    &nbsp;<a href="https://rossw.co.uk/tag/aoc.html" class="tags">aoc</a>
+                    &nbsp;<a href="https://rossw.co.uk/tag/python.html" class="tags">python</a>
+                    &nbsp;<a href="https://rossw.co.uk/tag/personal.html" class="tags">personal</a>
+                </div>
+            </article>
+            <div class="clear"></div>
+            <footer>
+                <p>
+                <a href="https://github.com/rosswf"><img src="https://rossw.co.uk/theme/images/GitHub-Mark-32px.webp" alt="My Github" width="32" height="32"></a>
+                <a href="https://twitter.com/rossw_"><img src="https://rossw.co.uk/theme/images/2021-Twitter-logo-black.webp" alt="My Twitter" width="32" height="26"></a>
+                </p>
+                <p>
+                Modified <a href="https://github.com/jody-frankowski/blue-penguin">Blue Penguin</a> Theme
+                &middot;
+                Powered by <a href="http://getpelican.com">Pelican</a>
+                &middot;
+                <a href="https://rossw.co.uk/feeds/all.rss.xml" rel="alternate">Rss Feed</a>
+            </footer>
+        </div>
+        <div class="clear"></div>
+    </div>
+    <a href="https://github.com/rosswf" class="github-corner" aria-label="View source on GitHub"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#15A9DB; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+</body>
+</html>

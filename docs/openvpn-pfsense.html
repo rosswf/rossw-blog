@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>
+RossW.co.uk | Setting up OpenVPN on pfSense    </title>
+    <link rel="shortcut icon" type="image/png" href="https://rossw.co.uk/favicon.png">
+    <link rel="shortcut icon" type="image/x-icon" href="https://rossw.co.uk/favicon.ico">
+    <link href="https://rossw.co.uk/feeds/all.rss.xml" type="application/rss+xml" rel="alternate" title="RossW.co.uk Full RSS Feed" />
+    <link rel="stylesheet" href="https://rossw.co.uk/theme/css/main.css" type="text/css" />
+    <link rel="stylesheet" href="https://rossw.co.uk/theme/css/pygments.css" type="text/css" />
+    <meta name="generator" content="Pelican" />
+    <meta name="author" content="Ross" />
+
+    <meta name="keywords" content="pfsense,openvpn,firewall,remote access" />
+    <meta name="description" content="Looking at setting up OpenVPN on pfSense so that your home network can be assessed from anywhere." />
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="https://rossw.co.uk/">Home</a></li>
+                <li><a href="https://rossw.co.uk/pages/about.html">About</a></li>
+                <li><a href="https://rossw.co.uk/archive">Archives</a></li>
+            </ul>
+        </nav>
+        <div class="header_box">
+            <h1><a href="https://rossw.co.uk/">RossW.co.uk</a></h1>
+            <h2>Programming, DevOps, Homelabs & more</h2>
+        </div>
+    </header>
+    <div id="wrapper">
+        <div id="content">            <h4 class="date">Apr 17, 2021</h4>
+
+            <article class="post">
+                <h2 class="title">
+                    <a href="https://rossw.co.uk/openvpn-pfsense.html" rel="bookmark" title="Permanent Link to &quot;Setting up OpenVPN on pfSense&quot;">Setting up OpenVPN on pfSense</a>
+                </h2>
+
+                
+                
+
+                <p>I would like to have the ability to connect to my home network wherever I am in the world so I have decided to setup a VPN. 
+I'm running pfSense as my router/firewall solution which makes this really easy!</p>
+<p>There are a few reasons I'd like to do this:</p>
+<ul>
+<li>Ensuring that my traffic is encrypted when connected to a public network.</li>
+<li>Using my own Pi-hole DNS wherever I am in the world.</li>
+<li>Securely self hosting various services that I can access from anywhere. Using bitwarden in this way is something I'd like to explore in the near future.</li>
+<li>Ability to remotely manage my home infrastructure from anywhere.</li>
+</ul>
+<p>I had originally planned to use Wireguard for my VPN solution as it was added to pfSense in version 2.5.0, however it has now been removed in version 2.5.1. You can read more in this <a href="https://www.netgate.com/blog/wireguard-removed-from-pfsense-ce-and-pfsense-plus-software.html">blog</a> post. This is extremely unfortunate but I'm sure it was done for the right reasons. I'll be keeping an eye on the progress of wireguard within FreeBSD &amp; pfSense, hopefully any issues can be quickly resolved.</p>
+<h3>Getting Started</h3>
+<p>The pfSense documentation has a great guide on how to do this in it's recipe section so instead of going over each step in minute detail here is the relevant <a href="https://docs.netgate.com/pfsense/en/latest/recipes/openvpn-ra.html">recipe</a>. 
+I'm just going to quickly run through it at a high level and provide information on various settings I changed. Also I'm not sure when the documentation is written but it differed slightly to what is the latest version as I'm writing this post, pfSense 2.5.1.</p>
+<p><strong><em>If you haven't checked out the recipe section of pfSense's documentation before I highly recommend you do so, it has a ton of information on how to perform various different tasks and setup all sorts of functionality.</em></strong></p>
+<p>The first thing we need to do is to go to VPN -&gt; OpenVPN in the navbar at the top then click the link for the wizard which walks you through the process of getting everything setup.</p>
+<p>I'm going to number the steps based on the order in which we go through them, you'll notice that the wizard within pfSense may jump a few steps at a time, this is due to the options we are choosing. We do not have to complete all 11 steps.</p>
+<h3>Step 1 - Authentication Backend</h3>
+<p>The first screen asks what authentication backend is to be used. We are just going to leave this on Local User Access and click next. In a later step we will create the user within pfSense itself.</p>
+<p><img alt="pfSense OpenVPN Wizard Step 1" src="https://rossw.co.uk/images/openvpn-pfsense/part1.webp"></p>
+<h3>Step 2 - Creating a Certificate Authority</h3>
+<p>A certificate authority is required to generate &amp; sign certificates used by clients to authenticate with the server. It can also revoke certificates.</p>
+<p>For the purposes of this I'm just going to use rossw as my organisation but you should use whatever you feel would be the best bit and ensure that all the fields are filled in.</p>
+<p>Once done we simply click Add new CA. </p>
+<p>We only need to do this step once since you can continue to use this same Certificate Authority in future.</p>
+<p><img alt="pfSense OpenVPN Wizard Step 2" src="https://rossw.co.uk/images/openvpn-pfsense/part2.webp"></p>
+<h3>Step 3 - Create a Server Certificate</h3>
+<p>Now that we have a CA we need to generate a certificate that the server will use to identify itself to any clients that are trying to connect. </p>
+<p>The pfSense documentation recommends using the hostname for the Descriptive name so I'll use pfsense.rossw.co.uk as an example here and once again the organisation will be rossw. You should once again use whatever makes the most sense for your use case.</p>
+<p>This is very similar to the previous step and there is quite a bit of duplication from the so once it's complete click create new certificate and we will move on.</p>
+<p><img alt="pfSense OpenVPN Wizard Step 3" src="https://rossw.co.uk/images/openvpn-pfsense/part3.webp"></p>
+<h3>Step 4 - Server Setup</h3>
+<p>This next page can seem quite overwhelming at first since there are a lot of different options. However the <a href="https://docs.netgate.com/pfsense/en/latest/recipes/openvpn-ra.html">recipe</a> explains each of the options in plenty of detail, and in most cases the default is fine.</p>
+<p><img alt="pfSense OpenVPN Wizard Step 4 - General" src="https://rossw.co.uk/images/openvpn-pfsense/part4-1.webp"></p>
+<p>The general server settings are quite straight forward. I went with the defaults here.</p>
+<p><img alt="pfSense OpenVPN Wizard Step 4 - Cryptographic" src="https://rossw.co.uk/images/openvpn-pfsense/part4-2.webp"></p>
+<p>Again we can mostly go with the default here. Just make sure TLS Authentication and Generate TLS Key are selected as explained in the <a href="https://docs.netgate.com/pfsense/en/latest/recipes/openvpn-ra.html">recipe</a>.</p>
+<p><img alt="pfSense OpenVPN Wizard Step 4 - Tunnel" src="https://rossw.co.uk/images/openvpn-pfsense/part4-3.webp"></p>
+<p>Next is the tunnel settings, this is where you will want to change a few values.</p>
+<ul>
+<li>
+<p>Tunnel network. I Chose 192.168.10.0/24 here because my home network is on 192.168.0.0/24. The 10 was just an arbitrary number. You can choose whatever you'd like really.</p>
+</li>
+<li>
+<p>Redirect Gateway. I've enabled this as one of the main reasons for wanting to setup a vpn is for security when on public networks so I want all my traffic to be forced through the VPN.</p>
+</li>
+<li>
+<p>Local Network. As mentioned earlier my local network is 192.168.0.0/24 but you should enter yours here. So if it was 192.168.1.0/24 you'd enter that here for example.</p>
+</li>
+</ul>
+<p>The rest I have left as the default but feel free to explore compression and what that means for security if bandwidth is a concern to you.</p>
+<p><img alt="pfSense OpenVPN Wizard Step 4 - Client" src="https://rossw.co.uk/images/openvpn-pfsense/part4-4.webp"></p>
+<p>Finally we have client settings. Here I just provide the ip address of my pi-hole for the DNS as I want all my DNS to go through that.</p>
+<h3>Step 5 - Firewall Configuration</h3>
+<p>On this final screen we tell pfSense to create the relevant firewall rules for allowing VPN connections and traffic through the tunnel.</p>
+<p>This will allow connections from anywhere to attempt to connect to the VPN, if you'd like to lock this down then make sure you edit the firewall rules accordingly.</p>
+<p><img alt="pfSense OpenVPN Wizard Step 5 - Firewall" src="https://rossw.co.uk/images/openvpn-pfsense/part5.webp"></p>
+<h3>Finished! - but not quite...</h3>
+<p>The final screen lets you know that the server configuration is complete. But we aren't quite finished yet. </p>
+<p><img alt="pfSense OpenVPN Wizard - Finished!" src="https://rossw.co.uk/images/openvpn-pfsense/finished.webp"></p>
+<p>Remember how in the first step I mentioned we need to create a user? Let's do that now.</p>
+<h3>Step 6 - Adding a User</h3>
+<p>Navigate to System -&gt; User Manager then click the Add button.</p>
+<p>Fill in your desired Username, Password and Full name. I already have a user for this so I've just filled in some example information.</p>
+<p>It is also important to click the "Click to create a user certificate" check box so that a certificate that the user will need to authenticate with OpenVPN is generated.</p>
+<p>Give this a Descriptive name and select the certificate authority we created when setting up OpenVPN. The defaults are fine for the rest of it. Then simply scroll down a click Save.</p>
+<p><img alt="pfSense OpenVPN Wizard - Step 6" src="https://rossw.co.uk/images/openvpn-pfsense/part6.webp"></p>
+<h3>Step 7 - Client Export</h3>
+<p>As explained in the <a href="https://docs.netgate.com/pfsense/en/latest/recipes/openvpn-ra.html">recipe</a> the easiest way to export configuration for different VPN clients is to use the OpenVPN Client Export Package. </p>
+<p>This can be done by navigating to System -&gt; Package Manager then going to Available Packages and installing the one called openvpn-client-export.</p>
+<p>This will give us a new option under VPN -&gt; OpenVPN called Client Export. Simply navigate here and then choose the Remote Access Server, in this case we only have a single OpenVPN server so it will already be selected for us. The rest of the settings can be left at default.</p>
+<p>Scroll down to the bottom and there will be a list of OpenVPN clients, click the one that is relevant to yourself and it should begin the download. You can find more information in the <a href="https://docs.netgate.com/pfsense/en/latest/packages/openvpn-client-export.html">documentation</a>.</p>
+<p>Initially I am just going to set this up on my Android phone so I'll choose Android under Inline Configurations.</p>
+<p><img alt="pfSense OpenVPN Wizard - Step 7 - 1" src="https://rossw.co.uk/images/openvpn-pfsense/part7-1.webp">
+<img alt="pfSense OpenVPN Wizard - Step 7 - 2" src="https://rossw.co.uk/images/openvpn-pfsense/part7-2.webp"></p>
+<p>It is vitally important that you keep this configuration safe and secure. If anybody gets access to it they will be able to connect to your VPN.</p>
+<p>Once you have the configuration downloaded simply import it into your VPN client of choice and you should be able to connect!</p>
+<h3>Finally Finished!</h3>
+<p>So let's give it a whirl. I'll open up the OpenVPN client on my phone, import the configuration, try to connect and enter my password when prompted. </p>
+<p>To make sure it's working I'll try to browse to my TrueNAS web UI and see if it loads.</p>
+<p><img alt="pfSense OpenVPN Wizard - Finally" src="https://rossw.co.uk/images/openvpn-pfsense/finally.webp"></p>
+<p><strong>Success!</strong> </p>
+<p>I can now securely access my home network from anywhere in the world and all my DNS requests are going through my Pi-hole for ad blocking on the move.</p>
+                <section>
+                <p id="post-share-links">
+                    Share on:
+                    <a href="https://twitter.com/intent/tweet?text=Setting%20up%20OpenVPN%20on%20pfSense&url=https%3A//rossw.co.uk/openvpn-pfsense.html&hashtags=pfsense,openvpn,firewall,remote-access" title="Share on Twitter">Twitter</a>
+                    ·
+                    <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A//rossw.co.uk/openvpn-pfsense.html" title="Share on Facebook">Facebook</a>
+                    ·
+                    <a href="https://www.reddit.com/submit?url=https%3A//rossw.co.uk/openvpn-pfsense.html&title=Setting%20up%20OpenVPN%20on%20pfSense" title="Share via Reddit">Reddit</a>
+                    ·
+                    <a href="mailto:?subject=Setting%20up%20OpenVPN%20on%20pfSense&amp;body=https%3A//rossw.co.uk/openvpn-pfsense.html" title="Share via Email">Email</a>
+                </p>
+                </section>
+                <div class="clear"></div>
+
+                <div class="info">
+                    <a href="https://rossw.co.uk/openvpn-pfsense.html">posted at 08:10</a>
+                    &nbsp;&middot;&nbsp;<a href="https://rossw.co.uk/category/pfsense.html" rel="tag">pfSense</a>
+                    &nbsp;&middot;
+                    &nbsp;<a href="https://rossw.co.uk/tag/pfsense.html" class="tags">pfsense</a>
+                    &nbsp;<a href="https://rossw.co.uk/tag/openvpn.html" class="tags">openvpn</a>
+                    &nbsp;<a href="https://rossw.co.uk/tag/firewall.html" class="tags">firewall</a>
+                    &nbsp;<a href="https://rossw.co.uk/tag/remote-access.html" class="tags">remote access</a>
+                </div>
+            </article>
+            <div class="clear"></div>
+            <footer>
+                <p>
+                <a href="https://github.com/rosswf"><img src="https://rossw.co.uk/theme/images/GitHub-Mark-32px.webp" alt="My Github" width="32" height="32"></a>
+                <a href="https://twitter.com/rossw_"><img src="https://rossw.co.uk/theme/images/2021-Twitter-logo-black.webp" alt="My Twitter" width="32" height="26"></a>
+                </p>
+                <p>
+                Modified <a href="https://github.com/jody-frankowski/blue-penguin">Blue Penguin</a> Theme
+                &middot;
+                Powered by <a href="http://getpelican.com">Pelican</a>
+                &middot;
+                <a href="https://rossw.co.uk/feeds/all.rss.xml" rel="alternate">Rss Feed</a>
+            </footer>
+        </div>
+        <div class="clear"></div>
+    </div>
+    <a href="https://github.com/rosswf" class="github-corner" aria-label="View source on GitHub"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#15A9DB; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+</body>
+</html>

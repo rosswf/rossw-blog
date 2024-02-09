@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>
+RossW.co.uk | Advent of Code 2021 - Day 2    </title>
+    <link rel="shortcut icon" type="image/png" href="https://rossw.co.uk/favicon.png">
+    <link rel="shortcut icon" type="image/x-icon" href="https://rossw.co.uk/favicon.ico">
+    <link href="https://rossw.co.uk/feeds/all.rss.xml" type="application/rss+xml" rel="alternate" title="RossW.co.uk Full RSS Feed" />
+    <link rel="stylesheet" href="https://rossw.co.uk/theme/css/main.css" type="text/css" />
+    <link rel="stylesheet" href="https://rossw.co.uk/theme/css/pygments.css" type="text/css" />
+    <meta name="generator" content="Pelican" />
+    <meta name="author" content="Ross" />
+
+    <meta name="keywords" content="programming,aoc,python" />
+    <meta name="description" content="Advent of Code 2021 - Day 2" />
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="https://rossw.co.uk/">Home</a></li>
+                <li><a href="https://rossw.co.uk/pages/about.html">About</a></li>
+                <li><a href="https://rossw.co.uk/archive">Archives</a></li>
+            </ul>
+        </nav>
+        <div class="header_box">
+            <h1><a href="https://rossw.co.uk/">RossW.co.uk</a></h1>
+            <h2>Programming, DevOps, Homelabs & more</h2>
+        </div>
+    </header>
+    <div id="wrapper">
+        <div id="content">            <h4 class="date">Dec 02, 2021</h4>
+
+            <article class="post">
+                <h2 class="title">
+                    <a href="https://rossw.co.uk/drafts/aoc-2021-day2.html" rel="bookmark" title="Permanent Link to &quot;Advent of Code 2021 - Day 2&quot;">Advent of Code 2021 - Day 2</a>
+                </h2>
+
+                
+                
+
+                <p><strong>Spoiler Warning: This post contains spoilers for Advent of Code Day 2.</strong></p>
+<p>Time for day 2! This one was quite simple again but still a lot of fun especially because it gave me an excuse to try out another feature of python3.10 <a href="https://www.python.org/dev/peps/pep-0636/">Structural Pattern Matching</a></p>
+<h3>Part 1</h3>
+<p>The input for this challenge had a command per line in the format <code>&lt;direction&gt; &lt;magnitude&gt;</code> for example <code>down 5</code>. </p>
+<p>The task for part 1 was to calculating the resulting horizontal location and depth after all the commands had been followed then multiply them together.</p>
+<p>First of all I defined a function to read the file and parse the input. Resulting in a list of lists where each inner list was of the format <code>[direction, magnitude].</code> Using <code>split</code> made this quite straight forward but meant I had to deal with converting the magnitude from a string to an integer later on. If anybody has any suggestions for a cleaner way to handle this please let me know.</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">parse_input</span><span class="p">(</span><span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+    <span class="sd">&quot;&quot;&quot;Parses the file given by filename and returns a list of commands</span>
+<span class="sd">    where each command is a list [instruction, value].</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">planned_course</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+    <span class="n">commands</span> <span class="o">=</span> <span class="p">[</span><span class="n">command</span><span class="o">.</span><span class="n">split</span><span class="p">()</span> <span class="k">for</span> <span class="n">command</span> <span class="ow">in</span> <span class="n">planned_course</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">commands</span>
+</code></pre></div>
+
+<p>I'm still getting my head around type hinting so this may not be entirely correct. If somebody could let me know it would be appreciated.</p>
+<p>Now that I have my commands it was time to follow them to get the final horizontal and depth positions.</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">follow_commands_p1</span><span class="p">(</span><span class="n">commands</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Part 1: Uses the list of commands to calculate the final horizontal </span>
+<span class="sd">    position and depth and returns them.&quot;&quot;&quot;</span>
+    <span class="n">horizontal</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">depth</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">command</span> <span class="ow">in</span> <span class="n">commands</span><span class="p">:</span>
+        <span class="n">match</span> <span class="p">[</span><span class="n">command</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">int</span><span class="p">(</span><span class="n">command</span><span class="p">[</span><span class="mi">1</span><span class="p">])]:</span>
+            <span class="n">case</span> <span class="p">[</span><span class="s1">&#39;forward&#39;</span><span class="p">,</span> <span class="n">magnitude</span><span class="p">]:</span>
+                <span class="n">horizontal</span> <span class="o">+=</span> <span class="n">magnitude</span>
+            <span class="n">case</span> <span class="p">[</span><span class="s1">&#39;down&#39;</span><span class="p">,</span> <span class="n">magnitude</span><span class="p">]:</span>
+                <span class="n">depth</span> <span class="o">+=</span> <span class="n">magnitude</span>
+            <span class="n">case</span> <span class="p">[</span><span class="s1">&#39;up&#39;</span><span class="p">,</span> <span class="n">magnitude</span><span class="p">]:</span>
+                <span class="n">depth</span> <span class="o">-=</span> <span class="n">magnitude</span>
+    <span class="k">return</span> <span class="n">horizontal</span><span class="p">,</span> <span class="n">depth</span>
+</code></pre></div>
+
+<p>Here I got to use the new <code>match</code> and <code>case</code> structural pattern matching. It worked out well because I didn't have to deal with splitting the command into it's direction and magnitude components, the pattern matching handled that for me! I'd definitely like to explore this new feature in depth in future as it seems extremely powerful.</p>
+<h3>Part 2</h3>
+<p>Part 2 was very similar to part 1 but the way that depth was calculated changed. It was now the product of a new variable <code>aim</code> and the <code>horizontal</code> distance. I would have liked to have refactored the function used for part 1 to also work with part 2 but I couldn't think of a nice way of doing it so I created an entirely new function for part 2 still using the same principles as part 1.</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">follow_commands_p2</span><span class="p">(</span><span class="n">commands</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Part 2: Uses the list of commands to calculate the final horizontal</span>
+<span class="sd">    position and depth and returns them. For part 2 depth is determined</span>
+<span class="sd">    by aim and horizontal movement.&quot;&quot;&quot;</span>
+    <span class="n">horizontal</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">depth</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">aim</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">command</span> <span class="ow">in</span> <span class="n">commands</span><span class="p">:</span>
+        <span class="n">match</span> <span class="p">[</span><span class="n">command</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">int</span><span class="p">(</span><span class="n">command</span><span class="p">[</span><span class="mi">1</span><span class="p">])]:</span>
+            <span class="n">case</span> <span class="p">[</span><span class="s1">&#39;forward&#39;</span><span class="p">,</span> <span class="n">magnitude</span><span class="p">]:</span>
+                <span class="n">horizontal</span> <span class="o">+=</span> <span class="n">magnitude</span>
+                <span class="n">depth</span> <span class="o">+=</span> <span class="n">magnitude</span> <span class="o">*</span> <span class="n">aim</span>
+            <span class="n">case</span> <span class="p">[</span><span class="s1">&#39;down&#39;</span><span class="p">,</span> <span class="n">magnitude</span><span class="p">]:</span>
+                <span class="n">aim</span> <span class="o">+=</span> <span class="n">magnitude</span>
+            <span class="n">case</span> <span class="p">[</span><span class="s1">&#39;up&#39;</span><span class="p">,</span> <span class="n">magnitude</span><span class="p">]:</span>
+                <span class="n">aim</span> <span class="o">-=</span> <span class="n">magnitude</span>
+    <span class="k">return</span> <span class="n">horizontal</span><span class="p">,</span> <span class="n">depth</span>
+</code></pre></div>
+
+<h3>Summary</h3>
+<p>Finally putting it all together.</p>
+<div class="highlight"><pre><span></span><code><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">input_file_path</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s2">&quot;input.txt&quot;</span>
+    <span class="n">commands</span> <span class="o">=</span> <span class="n">parse_input</span><span class="p">(</span><span class="n">input_file_path</span><span class="p">)</span>
+
+    <span class="n">horizontal</span><span class="p">,</span> <span class="n">depth</span> <span class="o">=</span> <span class="n">follow_commands_p1</span><span class="p">(</span><span class="n">commands</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Part 1: </span><span class="si">{</span><span class="n">horizontal</span> <span class="o">*</span> <span class="n">depth</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">horizontal</span><span class="p">,</span> <span class="n">depth</span> <span class="o">=</span> <span class="n">follow_commands_p2</span><span class="p">(</span><span class="n">commands</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Part 2: </span><span class="si">{</span><span class="n">horizontal</span> <span class="o">*</span> <span class="n">depth</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<p>Already 2/2 on using new features of python 3.10 which is great! Hopefully that continues moving forwards. The only thing I don't like about my solution for this one is the amount of duplicated code in the functions for part 1 and part 2. If anybody has any suggestions for how this could be refactored please get in touch via e-mail or twitter. Contact details be found <a href="https://rossw.co.uk/pages/about.html">here</a>.</p>
+<p><strong><em>Links</em></strong></p>
+<p>If you want to take part here is the link for <a href="https://adventofcode.com/2021/day/2">day 2</a>.</p>
+<p>My solution can be found on <a href="https://github.com/rosswf/AdventOfCode2021/blob/main/day2/solution.py">github</a>.</p>
+                <div class="clear"></div>
+
+                <div class="info">
+                    <a href="https://rossw.co.uk/drafts/aoc-2021-day2.html">posted at 12:30</a>
+                    &nbsp;&middot;&nbsp;<a href="https://rossw.co.uk/category/programming.html" rel="tag">Programming</a>
+                    &nbsp;&middot;
+                    &nbsp;<a href="https://rossw.co.uk/tag/programming.html" class="tags">programming</a>
+                    &nbsp;<a href="https://rossw.co.uk/tag/aoc.html" class="tags">aoc</a>
+                    &nbsp;<a href="https://rossw.co.uk/tag/python.html" class="tags">python</a>
+                </div>
+            </article>
+            <div class="clear"></div>
+            <footer>
+                <p>
+                <a href="https://github.com/rosswf"><img src="https://rossw.co.uk/theme/images/GitHub-Mark-32px.webp" alt="My Github" width="32" height="32"></a>
+                <a href="https://twitter.com/rossw_"><img src="https://rossw.co.uk/theme/images/2021-Twitter-logo-black.webp" alt="My Twitter" width="32" height="26"></a>
+                </p>
+                <p>
+                Modified <a href="https://github.com/jody-frankowski/blue-penguin">Blue Penguin</a> Theme
+                &middot;
+                Powered by <a href="http://getpelican.com">Pelican</a>
+                &middot;
+                <a href="https://rossw.co.uk/feeds/all.rss.xml" rel="alternate">Rss Feed</a>
+            </footer>
+        </div>
+        <div class="clear"></div>
+    </div>
+    <a href="https://github.com/rosswf" class="github-corner" aria-label="View source on GitHub"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#15A9DB; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+</body>
+</html>

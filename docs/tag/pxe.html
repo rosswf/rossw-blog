@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>
+RossW.co.uk | articles tagged "pxe"    </title>
+    <link rel="shortcut icon" type="image/png" href="https://rossw.co.uk/favicon.png">
+    <link rel="shortcut icon" type="image/x-icon" href="https://rossw.co.uk/favicon.ico">
+    <link href="https://rossw.co.uk/feeds/all.rss.xml" type="application/rss+xml" rel="alternate" title="RossW.co.uk Full RSS Feed" />
+    <link rel="stylesheet" href="https://rossw.co.uk/theme/css/main.css" type="text/css" />
+    <link rel="stylesheet" href="https://rossw.co.uk/theme/css/pygments.css" type="text/css" />
+    <meta name="generator" content="Pelican" />
+    <meta name="author" content="Ross" />
+
+<meta name="description" content="Learn with me. Programming, DevOps, Homelabs & more" />
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li class="ephemeral selected"><a href="https://rossw.co.uk/tag/pxe.html">pxe</a></li>
+                <li><a href="https://rossw.co.uk/">Home</a></li>
+                <li><a href="https://rossw.co.uk/pages/about.html">About</a></li>
+                <li><a href="https://rossw.co.uk/archive">Archives</a></li>
+            </ul>
+        </nav>
+        <div class="header_box">
+            <h1><a href="https://rossw.co.uk/">RossW.co.uk</a></h1>
+            <h2>Programming, DevOps, Homelabs & more</h2>
+        </div>
+    </header>
+    <div id="wrapper">
+        <div id="content">            <h4 class="date">Apr 24, 2021</h4>
+
+            <article class="post">
+                <h2 class="title">
+                    <a href="https://rossw.co.uk/pxeboot-ubuntu-pfsense.html" rel="bookmark" title="Permanent Link to &quot;Netbooting the Ubuntu 21.04 Installer&quot;">Netbooting the Ubuntu 21.04 Installer</a>
+                </h2>
+
+                
+                
+
+                <p>Ubuntu 21.04 Hirsute Hippo is here! Today I'm going to look at how to use pfSense to boot into the installer over the network. I am going to be installing the Desktop version but the same would apply to the Server version as well.</p>
+<p>There are a couple of reasons that I can think of that you might want to do this.</p>
+<ol>
+<li>If you have a lot of computers you'd like to install on at once, you don't have to have multiple usb drives or CDs.</li>
+<li>You misplaced your usb drive that was large enough to fit in the installer on it.</li>
+</ol>
+<p>I would be doing this because of the second reason... and because it's a fun learning experience.</p>
+<p>I have loosely followed the instructions from this <a href="https://discourse.ubuntu.com/t/netbooting-the-live-server-installer/14510">guide</a>.</p>
+<h3>Gathering all the files</h3>
+<p>There are a few files that we need to get this to work. Two from syslinux and two from the ubuntu ISO itself. We also need to write a short configuration file.</p>
+<p>Let's start with syslinux. We need <code>pxelinux.0</code> and <code>ldlinux.c32</code>. The easiest way I find to get these is to download syslinux from <a href="https://mirrors.edge.kernel.org/pub/linux/utils/boot/syslinux/">kernel.org</a> and just extract them.</p>
+<div class="highlight"><pre><span></span><code>$ cp bios/core/pxelinux.0 ~/netboot-files/
+$ cp bios/com32/elflink/ldlinux/ldlinux.c32 ~/netboot-files/
+</code></pre></div>
+
+<p>Now we have those we need <code>initrd</code> and <code>vmlinuz</code> from the Ubuntu 21.04 installer. So let's <a href="https://ubuntu.com/">download</a> it, mount it and grab those files.</p>
+<div class="highlight"><pre><span></span><code>$ sudo mkdir /media/iso
+$ sudo mount ubuntu-21.04-desktop-amd64.iso /media/iso
+$ cp /media/iso/casper/{initrd,vmlinuz} ~/netboot-files/
+$ sudo umount /media/iso
+</code></pre></div>
+
+<p>Finally we need to create a configuration file for pxelinux.</p>
+<div class="highlight"><pre><span></span><code>$ mkdir ~/netboot-files/pxelinux.cfg/
+$ touch ~/netboot-files/pxelinux.cfg/default
+</code></pre></div>
+
+<p>Then using your favourite text editor put the following into the <code>default</code> file.</p>
+<div class="highlight"><pre><span></span><code>DEFAULT install
+LABEL install
+    KERNEL vmlinuz
+    INITRD initrd
+    APPEND root=/dev/ram0 ramdisk_size=4000000 ip=dhcp url=https://releases.ubuntu.com/21.04/ubuntu-21.04-desktop-amd64.iso
+</code></pre></div>
+
+<p>Here I've set the size of the ramdisk to ~4GB, the thought behind this was that the iso is 2.8GB and we need some room for the actual installation. This might be way too much, I haven't really experimented with it but it works.</p>
+<p>This is an extremely basic configuration, you can go quite in depth with pxelinux. There are modules for doing all sorts of things such as creating menus. I'd recommend reading the <a href="https://wiki.syslinux.org/wiki/index.php?title=PXELINUX">wiki</a> for more information.</p>
+<p>If you've followed all the steps above you should have:</p>
+<div class="highlight"><pre><span></span><code>$ ls -AlR ~/netboot-files
+/home/ross/netboot-files:
+total 126115
+-r--r--r-- 1 ross ross 115774131 Apr 24 14:59 initrd
+-rwxrwxr-x 1 ross ross    122308 Apr 24 14:49 ldlinux.c32
+-rw-rw-r-- 1 ross ross     46909 Apr 24 14:49 pxelinux.0
+drwxrwxr-x 2 ross ross         3 Apr 24 15:02 pxelinux.cfg
+-r--r--r-- 1 ross ross  14732384 Apr 24 14:59 vmlinuz
+
+/home/ross/netboot-files/pxelinux.cfg:
+total 1
+-rw-rw-r-- 1 ross ross 0 Apr 24 15:02 default
+</code></pre></div>
+
+<h3>Setting up TFTP in pfSense</h3>
+<p>Since pfSense is already acting as the dhcp server it makes it really simple to get everything up and running. The only thing we need is a TFTP server which pfSense has a package for.</p>
+<p>This can be done by navigating to System -&gt; Package Manager then going to Available Packages and installing the one called tftpd.</p>
+<p>Once this is installed you can navigate to Services-&gt;TFTP Server and check "Enable TFTP service" if it isn't already enabled.</p>
+<p><img alt="pfSense tftp settings" src="https://rossw.co.uk/images/pxeboot-ubuntu-pfsense/tftp-settings.webp"></p>
+<p>Now we need to get our files from <code>~/netboot-files</code> onto pfSense in the correct location. You can use the webUI to do this by going to the Files section but you can only do one file at time as far as I can tell and it won't handle the folder containing the configuration.</p>
+<p>The easiest way is just to use scp.</p>
+<div class="highlight"><pre><span></span><code>$ scp -r ~/netboot-files/* admin@192.168.0.1:/tftpboot/
+initrd         100%  110MB  93.3MB/s   00:01    
+ldlinux.c32    100%  119KB  60.2MB/s   00:00    
+pxelinux.0     100%   46KB  46.2MB/s   00:00    
+default        100%  185   621.3KB/s   00:00    
+vmlinuz        100%   14MB  92.9MB/s   00:00
+</code></pre></div>
+
+<h3>pfSense DHCP Configuration</h3>
+<p>Now that TFTP is up and running there's some configuration we need to do for the dhcp server to tell enable network booting and point it at our TFTP server.</p>
+<p>Navigate to Services-&gt;DHCP Server and scroll all the way down to near the bottom where you should see TFTP and Network Booting options. Click Display Advanced to see all the options.
+Check the enable box and then there are just a few fields we need to fill in. 
+The IP address for my pfSense is 192.168.0.1 but change your to suit.</p>
+<p><img alt="pfSense dhcp settings" src="https://rossw.co.uk/images/pxeboot-ubuntu-pfsense/dhcp-settings.webp"></p>
+<h3>Installing Ubuntu!</h3>
+<p>That's everything we need to do in pfSense. We should now to be able to boot over the network so let's give it a go.</p>
+<p>I'm going to use a virtual box VM for this so I can easily capture the process but it absolutely works on physical hardware but you may have to tweak some BIOS settings since this particular setup is not using UEFI.</p>
+<p><img alt="Booting - Part 1" src="https://rossw.co.uk/images/pxeboot-ubuntu-pfsense/booting-1.webp"></p>
+<p>It's found our TFP server and is loading the ramdisk.</p>
+<p><img alt="Booting - Part 2" src="https://rossw.co.uk/images/pxeboot-ubuntu-pfsense/booting-2.webp"></p>
+<p>Downloading of the ISO has started.</p>
+<p><img alt="Booting - Part 3" src="https://rossw.co.uk/images/pxeboot-ubuntu-pfsense/booting-3.webp"></p>
+<p>And a few minutes later we are in! We can now install Ubuntu 21.04.</p>
+<h3>Summary</h3>
+<p>pfSense makes this whole process fairly painless with very minimal configuration required thanks to it's plugins. If you are not using pfSense I recommend following the <a href="https://discourse.ubuntu.com/t/netbooting-the-live-server-installer/14510">guide</a> I linked for setting up dhcp and TFTP manually.</p>
+<p>These steps are a very minimal configuration and what if we wanted to be able to serve two different distros installers over the network, say we had an LTS for servers and the latest version for any desktops? Well, this should be possible with syslinux/pxelinux and I definitely intend to dive deeper into it in future and explore it's modules. </p>
+<p>If any of you have any cool setups for this then get in touch and let me know. Contact details be found <a href="https://rossw.co.uk/pages/about.html">here</a>.</p>
+                <section>
+                <p id="post-share-links">
+                    Share on:
+                    <a href="https://twitter.com/intent/tweet?text=Netbooting%20the%20Ubuntu%2021.04%20Installer&url=https%3A//rossw.co.uk/pxeboot-ubuntu-pfsense.html&hashtags=pfsense,tftp,pxe,netboot,ubuntu,hirsute-hippo" title="Share on Twitter">Twitter</a>
+                    ·
+                    <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A//rossw.co.uk/pxeboot-ubuntu-pfsense.html" title="Share on Facebook">Facebook</a>
+                    ·
+                    <a href="https://www.reddit.com/submit?url=https%3A//rossw.co.uk/pxeboot-ubuntu-pfsense.html&title=Netbooting%20the%20Ubuntu%2021.04%20Installer" title="Share via Reddit">Reddit</a>
+                    ·
+                    <a href="mailto:?subject=Netbooting%20the%20Ubuntu%2021.04%20Installer&amp;body=https%3A//rossw.co.uk/pxeboot-ubuntu-pfsense.html" title="Share via Email">Email</a>
+                </p>
+                </section>
+                <div class="clear"></div>
+
+                <div class="info">
+                    <a href="https://rossw.co.uk/pxeboot-ubuntu-pfsense.html">posted at 16:30</a>
+                    &nbsp;&middot;&nbsp;<a href="https://rossw.co.uk/category/pfsense.html" rel="tag">pfSense</a>
+                    &nbsp;&middot;
+                    &nbsp;<a href="https://rossw.co.uk/tag/pfsense.html" class="tags">pfsense</a>
+                    &nbsp;<a href="https://rossw.co.uk/tag/tftp.html" class="tags">tftp</a>
+                    &nbsp;<a href="https://rossw.co.uk/tag/pxe.html" class="tags selected">pxe</a>
+                    &nbsp;<a href="https://rossw.co.uk/tag/netboot.html" class="tags">netboot</a>
+                    &nbsp;<a href="https://rossw.co.uk/tag/ubuntu.html" class="tags">ubuntu</a>
+                    &nbsp;<a href="https://rossw.co.uk/tag/hirsute-hippo.html" class="tags">hirsute hippo</a>
+                </div>
+            </article>
+
+            <div class="clear"></div>
+            <footer>
+                <p>
+                <a href="https://github.com/rosswf"><img src="https://rossw.co.uk/theme/images/GitHub-Mark-32px.webp" alt="My Github" width="32" height="32"></a>
+                <a href="https://twitter.com/rossw_"><img src="https://rossw.co.uk/theme/images/2021-Twitter-logo-black.webp" alt="My Twitter" width="32" height="26"></a>
+                </p>
+                <p>
+                Modified <a href="https://github.com/jody-frankowski/blue-penguin">Blue Penguin</a> Theme
+                &middot;
+                Powered by <a href="http://getpelican.com">Pelican</a>
+                &middot;
+                <a href="https://rossw.co.uk/feeds/all.rss.xml" rel="alternate">Rss Feed</a>
+            </footer>
+        </div>
+        <div class="clear"></div>
+    </div>
+    <a href="https://github.com/rosswf" class="github-corner" aria-label="View source on GitHub"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#15A9DB; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+</body>
+</html>

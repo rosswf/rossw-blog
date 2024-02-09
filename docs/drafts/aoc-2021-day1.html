@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>
+RossW.co.uk | Advent of Code 2021 - Day 1    </title>
+    <link rel="shortcut icon" type="image/png" href="https://rossw.co.uk/favicon.png">
+    <link rel="shortcut icon" type="image/x-icon" href="https://rossw.co.uk/favicon.ico">
+    <link href="https://rossw.co.uk/feeds/all.rss.xml" type="application/rss+xml" rel="alternate" title="RossW.co.uk Full RSS Feed" />
+    <link rel="stylesheet" href="https://rossw.co.uk/theme/css/main.css" type="text/css" />
+    <link rel="stylesheet" href="https://rossw.co.uk/theme/css/pygments.css" type="text/css" />
+    <meta name="generator" content="Pelican" />
+    <meta name="author" content="Ross" />
+
+    <meta name="keywords" content="programming,aoc,python" />
+    <meta name="description" content="Advent of Code 2021 - Day 1" />
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="https://rossw.co.uk/">Home</a></li>
+                <li><a href="https://rossw.co.uk/pages/about.html">About</a></li>
+                <li><a href="https://rossw.co.uk/archive">Archives</a></li>
+            </ul>
+        </nav>
+        <div class="header_box">
+            <h1><a href="https://rossw.co.uk/">RossW.co.uk</a></h1>
+            <h2>Programming, DevOps, Homelabs & more</h2>
+        </div>
+    </header>
+    <div id="wrapper">
+        <div id="content">            <h4 class="date">Dec 01, 2021</h4>
+
+            <article class="post">
+                <h2 class="title">
+                    <a href="https://rossw.co.uk/drafts/aoc-2021-day1.html" rel="bookmark" title="Permanent Link to &quot;Advent of Code 2021 - Day 1&quot;">Advent of Code 2021 - Day 1</a>
+                </h2>
+
+                
+                
+
+                <p>It's that time of year again! 
+I first took part in Advent of Code last year and made it up to day 10. I'm hoping that this year I can beat that.
+I'm going to be using python 3.10 this year and my main aim is to try out some of it's new features. I won't be making modifications to my solutions after pushing them to github instead I will talk through my thought process and discussing some of the aspects that I would change. </p>
+<p><strong>Spoiler Warning: This post contains spoilers for Advent of Code Day 1.</strong></p>
+<p>The challenges start out quite simple and increase in difficulty each day. This first one was quite basic but it was a lot of fun, one of my favourite parts about AoC is the story that goes alongside the challenges.</p>
+<h3>Part 1</h3>
+<p>The first part was quite straight forward but immediately gave me the opportunity to try out something new in python 3.10 <code>itertools.pairwise</code> here is the <a href="https://docs.python.org/3/library/itertools.html#itertools.pairwise">documentation</a>.</p>
+<p>The task was to read input from a text file which had a number on each line and count how many times this number increased.</p>
+<p>First of all I defined a function to read the file and return a list of integers.</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">parse_input</span><span class="p">(</span><span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Parses the file given by filename and returns a list of integers</span>
+<span class="sd">    where each value in the list is a line from filename.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">measurements</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+    <span class="n">measurements</span> <span class="o">=</span> <span class="p">[</span><span class="o">*</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">measurements</span><span class="p">)]</span>
+    <span class="k">return</span> <span class="n">measurements</span>
+</code></pre></div>
+
+<p>I used <code>map</code> here to convert the numbers as strings to integers and returned them as a list. I'm not sure if a list comprehension would have been more efficient in this case but this approach seemed to work.</p>
+<p>One thing that I will do in future is use <code>Pathlib</code> to ensure that the input file is always being read relative to the python file.</p>
+<p>Now that I had my list of integers it was time to check for values increasing.</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">check_increasing</span><span class="p">(</span><span class="n">measurements</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Pairs the values in measurements and returns how many pairs are</span>
+<span class="sd">    increasing.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">paired</span> <span class="o">=</span> <span class="n">pairwise</span><span class="p">(</span><span class="n">measurements</span><span class="p">)</span>
+    <span class="n">paired_increasing</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">paired</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">paired_increasing</span><span class="p">)</span>
+</code></pre></div>
+
+<p>Here I used the new <code>itertools.pairwise</code> to group adjacent numbers together and then used <code>map</code> again but this time to check if the numbers were increasing. The <code>sum</code> of this was then returned which added up all the Truthy values.</p>
+<p>If I were to do this again I probably would have used a generator expression instead of <code>map</code>. Something like:</p>
+<div class="highlight"><pre><span></span><code><span class="n">paired_increasing</span> <span class="o">=</span> <span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">paired</span><span class="p">)</span>
+<span class="k">return</span><span class="p">(</span><span class="n">paired_increasing</span><span class="p">)</span>
+</code></pre></div>
+
+<h3>Part 2</h3>
+<p>The second part was very similar to part 1 but with a little bit of added complexity which is a recurring theme for AoC challenges. For this part it was required to check if the sum of 3 adjacent numbers was increasing or decreasing. 
+Luckily I'd written my code in such a way that I could re-use my <code>check_increasing</code> function from part 1 so I just needed to create a solution for summing 3 adjacent numbers.</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">get_three_measurement_sums</span><span class="p">(</span><span class="n">measurements</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Takes a list of measurements and returns the sums of each 3 consecutive</span>
+<span class="sd">    values in the list.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">measurement_sums</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">measurements</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">measurements</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">measurements</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">measurements</span><span class="p">))</span>
+    <span class="p">]</span>
+    <span class="k">return</span> <span class="n">measurement_sums</span>
+</code></pre></div>
+
+<p>Here I used a list comprehension to loop through the list of numbers and add them together to create a new list. I'm not very happy with this at all as it seems very clumsy. I feel it would have been cleaner if I had used slicing and sum. The list this function returned could then be passed to the <code>check_increasing</code> function I created earlier for part 1.</p>
+<h3>Summary</h3>
+<p>Finally putting it all together.</p>
+<div class="highlight"><pre><span></span><code><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">measurements</span> <span class="o">=</span> <span class="n">parse_input</span><span class="p">(</span><span class="s2">&quot;input.txt&quot;</span><span class="p">)</span>
+
+    <span class="n">part1_solution</span> <span class="o">=</span> <span class="n">check_increasing</span><span class="p">(</span><span class="n">measurements</span><span class="p">)</span>
+
+    <span class="n">three_measurement_sums</span> <span class="o">=</span> <span class="n">get_three_measurement_sums</span><span class="p">(</span><span class="n">measurements</span><span class="p">)</span>
+    <span class="n">part2_solution</span> <span class="o">=</span> <span class="n">check_increasing</span><span class="p">(</span><span class="n">three_measurement_sums</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Part 1: </span><span class="si">{</span><span class="n">part1_solution</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Part 2: </span><span class="si">{</span><span class="n">part2_solution</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<p>I already can't wait to see what tomorrows challenge brings. If you are taking part in Advent of Code let me know how you solved this problem or if you have any hints/tips I'd love to hear them. Get in touch via e-mail or twitter. Contact details be found <a href="https://rossw.co.uk/pages/about.html">here</a>.</p>
+<p><strong><em>Links</em></strong></p>
+<p>If you want to take part here is the link for <a href="https://adventofcode.com/2021/day/1">day 1</a>.</p>
+<p>My solution can be found on <a href="https://github.com/rosswf/AdventOfCode2021/blob/main/day1/solution.py">github</a>.</p>
+                <div class="clear"></div>
+
+                <div class="info">
+                    <a href="https://rossw.co.uk/drafts/aoc-2021-day1.html">posted at 13:00</a>
+                    &nbsp;&middot;&nbsp;<a href="https://rossw.co.uk/category/programming.html" rel="tag">Programming</a>
+                    &nbsp;&middot;
+                    &nbsp;<a href="https://rossw.co.uk/tag/programming.html" class="tags">programming</a>
+                    &nbsp;<a href="https://rossw.co.uk/tag/aoc.html" class="tags">aoc</a>
+                    &nbsp;<a href="https://rossw.co.uk/tag/python.html" class="tags">python</a>
+                </div>
+            </article>
+            <div class="clear"></div>
+            <footer>
+                <p>
+                <a href="https://github.com/rosswf"><img src="https://rossw.co.uk/theme/images/GitHub-Mark-32px.webp" alt="My Github" width="32" height="32"></a>
+                <a href="https://twitter.com/rossw_"><img src="https://rossw.co.uk/theme/images/2021-Twitter-logo-black.webp" alt="My Twitter" width="32" height="26"></a>
+                </p>
+                <p>
+                Modified <a href="https://github.com/jody-frankowski/blue-penguin">Blue Penguin</a> Theme
+                &middot;
+                Powered by <a href="http://getpelican.com">Pelican</a>
+                &middot;
+                <a href="https://rossw.co.uk/feeds/all.rss.xml" rel="alternate">Rss Feed</a>
+            </footer>
+        </div>
+        <div class="clear"></div>
+    </div>
+    <a href="https://github.com/rosswf" class="github-corner" aria-label="View source on GitHub"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#15A9DB; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+</body>
+</html>

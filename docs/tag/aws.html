@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>
+RossW.co.uk | articles tagged "aws"    </title>
+    <link rel="shortcut icon" type="image/png" href="https://rossw.co.uk/favicon.png">
+    <link rel="shortcut icon" type="image/x-icon" href="https://rossw.co.uk/favicon.ico">
+    <link href="https://rossw.co.uk/feeds/all.rss.xml" type="application/rss+xml" rel="alternate" title="RossW.co.uk Full RSS Feed" />
+    <link rel="stylesheet" href="https://rossw.co.uk/theme/css/main.css" type="text/css" />
+    <link rel="stylesheet" href="https://rossw.co.uk/theme/css/pygments.css" type="text/css" />
+    <meta name="generator" content="Pelican" />
+    <meta name="author" content="Ross" />
+
+<meta name="description" content="Learn with me. Programming, DevOps, Homelabs & more" />
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li class="ephemeral selected"><a href="https://rossw.co.uk/tag/aws.html">aws</a></li>
+                <li><a href="https://rossw.co.uk/">Home</a></li>
+                <li><a href="https://rossw.co.uk/pages/about.html">About</a></li>
+                <li><a href="https://rossw.co.uk/archive">Archives</a></li>
+            </ul>
+        </nav>
+        <div class="header_box">
+            <h1><a href="https://rossw.co.uk/">RossW.co.uk</a></h1>
+            <h2>Programming, DevOps, Homelabs & more</h2>
+        </div>
+    </header>
+    <div id="wrapper">
+        <div id="content">            <h4 class="date">Aug 08, 2021</h4>
+
+            <article class="post">
+                <h2 class="title">
+                    <a href="https://rossw.co.uk/how-to-setup-an-aws-ec2-vps-instance.html" rel="bookmark" title="Permanent Link to &quot;How to setup an AWS EC2 (VPS) instance&quot;">How to setup an AWS EC2 (VPS) instance</a>
+                </h2>
+
+                
+                
+
+                <p>Recently, I have seen a number of people looking for hosting for their discord bots. Many people go to services like Heroku, but if you would like full VPS and full control, then AWS is a great option, especially since there is a free tier for one year. However, AWS has a lot of different products and the UI can be a little overwhelming so I thought I would write a quick brief guide on how to get started. This, however, is by no means a deep dive into all the features/products of AWS.</p>
+<h3>Getting Started</h3>
+<p>The first thing you need to do is head over to <a href="https://aws.amazon.com/">AWS</a> and create an account. This is not the same account that you would use for Amazon's website so you will need to create a new one. Make sure you setup 2FA as well.</p>
+<p>Once you have your account and are logged in, head over to the management console and under All Services-&gt;Compute, select EC2. This is basically amazon's name for a VPS, similar to a droplet on DigitalOcean.</p>
+<p><em>Note: If you wish to change the region, you can do so in the top right, next to your account name. It would make sense to do this now before creating your EC2 instance.</em></p>
+<p><img alt="Management Console" src="https://rossw.co.uk/images/aws-ec2-hosting/management-console.webp"></p>
+<h3>Launch instance</h3>
+<p>The EC2 Dashboard can seem very overwhelming at first as there are a lot of options, but the only thing we need right now is the big orange "Launch instance" button.</p>
+<p><img alt="Launch instance" src="https://rossw.co.uk/images/aws-ec2-hosting/launch-instance.webp"></p>
+<p><strong>Step 1: Choose an Amazon Machine Image (AMI)</strong></p>
+<p>The first step is selecting which operating system you would like to run on your EC2 instance. Make sure you choose one that is "Free tier eligible" if you want to take advantage of that for 12 months. For the purpose of this guide, I'm going to go with Ubuntu Server 20.04 LTS. If you are new to Linux, it is a great option as there are many learning resources available online; I'd definitely recommend it for getting started.</p>
+<p><img alt="Ubuntu Server" src="https://rossw.co.uk/images/aws-ec2-hosting/ubuntu-server.webp"></p>
+<p><strong>Step 2: Choose an Instance Type</strong></p>
+<p>Next we choose our instance type. There are plenty of options here (everything on AWS seems to be overwhelming!). For getting started, choose the t2.micro as this is free tier eligible and has 1gb of RAM which will be plenty for starting out. You can always upgrade later to one of the other instance types if your needs require it.</p>
+<p>Depending on what you are planning to run on your VPS, you can probably now just click the big blue "Review and Launch" button. This would be suitable for anything that doesn't require an inbound connection, such as a discord bot. However, if you want to host a website, see the optional step below.</p>
+<p>If you do not require any inbound connection other than SSH, you can skip the next step and just click the "Review and Launch" button.</p>
+<p><em>Note: One thing that could be done to restrict access is to change the security group settings so that SSH is only accessible from your own IP address rather than the entire world</em></p>
+<p><img alt="Instance Type" src="https://rossw.co.uk/images/aws-ec2-hosting/instance-type.webp"></p>
+<p><strong>Optional: Step 6: Configure Security Group</strong></p>
+<p>Skip ahead to step 6 of the configuration. This is where you can configure the security group. This is basically the firewall and defines which ports are open and where they can be accessed from. The change mentioned above about restricting SSH to your own IP can be done here. Simply change the Source to your own IP. For example: If your IP address was 1.1.1.1, you would enter "1.1.1.1/32".</p>
+<p>Here are some example options that would allow HTTP/HTTPS web traffic and a connection from SSH only on my own IP, shown as 1.1.1.1 as an example. Make sure you replace this with your own.</p>
+<p><img alt="Security Group" src="https://rossw.co.uk/images/aws-ec2-hosting/security-group.webp"></p>
+<p><strong>Launch!</strong></p>
+<p>Once you've completed the steps above, click "Review and Launch".</p>
+<p>Make sure you are happy with all your choices, then click "Launch".</p>
+<p><strong>SSH Keys</strong></p>
+<p>You will now be prompted to create an SSH key pair for accessing the EC2 instance. Choose "Create a new key pair" and give it a name, then click "Download Key Pair". </p>
+<p><strong><em>Make sure you save this somewhere secure and not lose it. If you do, you will no longer be able to gain access via SSH.</em></strong></p>
+<p><em>Note: I'm not going to go into using SSH and keys as it is outside of the scope of this guide. However, <a href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/putty.html">here is a guide</a> for using PuTTY on Windows with the key
+pair you have just downloaded.</em></p>
+<p>Once you have downloaded the key and saved it somewhere safe, click Launch Instances.</p>
+<p><img alt="Key Pair" src="https://rossw.co.uk/images/aws-ec2-hosting/keypair.webp"></p>
+<p><strong>Launched!</strong></p>
+<p>You can now go back to your dashboard and choose instances on the navigation panel. You should see your instance and its status. Once it is running, we can connect via SSH. You can click on it for further details in the panel below.</p>
+<p>To connect, you will need to make note of the Public IPv4 Address. This can be seen in the instance list at the top or within the details tab if you select the instance.</p>
+<p><img alt="Launched" src="https://rossw.co.uk/images/aws-ec2-hosting/launched.webp"></p>
+<h3>Connecting</h3>
+<p>Let's connect by SSH. The default user is <code>ubuntu</code> if you chose Ubuntu Server, and your IP address can be found on the AWS web console as mentioned above</p>
+<div class="highlight"><pre><span></span><code>$ ssh ubuntu@3.68.196.247 -i aws-key-pair.pem
+</code></pre></div>
+
+<p><img alt="Connected" src="https://rossw.co.uk/images/aws-ec2-hosting/connected.webp"></p>
+<p>All connected via SSH!</p>
+<h3>Summary</h3>
+<p>Hopefully, this guide was easy to follow. AWS is definitely overwhelming at first and there is still a lot I need to learn about it, but as you can see, it's really straight forward to set up with a basic VPS that you can run whatever you need to.</p>
+<p>If any of you have any further questions or suggestions, please get in touch! Contact details be found <a href="https://rossw.co.uk/pages/about.html">here</a>.</p>
+                <section>
+                <p id="post-share-links">
+                    Share on:
+                    <a href="https://twitter.com/intent/tweet?text=How%20to%20setup%20an%20AWS%20EC2%20%28VPS%29%20instance&url=https%3A//rossw.co.uk/how-to-setup-an-aws-ec2-vps-instance.html&hashtags=aws,hosting,vps,ubuntu" title="Share on Twitter">Twitter</a>
+                    ·
+                    <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A//rossw.co.uk/how-to-setup-an-aws-ec2-vps-instance.html" title="Share on Facebook">Facebook</a>
+                    ·
+                    <a href="https://www.reddit.com/submit?url=https%3A//rossw.co.uk/how-to-setup-an-aws-ec2-vps-instance.html&title=How%20to%20setup%20an%20AWS%20EC2%20%28VPS%29%20instance" title="Share via Reddit">Reddit</a>
+                    ·
+                    <a href="mailto:?subject=How%20to%20setup%20an%20AWS%20EC2%20%28VPS%29%20instance&amp;body=https%3A//rossw.co.uk/how-to-setup-an-aws-ec2-vps-instance.html" title="Share via Email">Email</a>
+                </p>
+                </section>
+                <div class="clear"></div>
+
+                <div class="info">
+                    <a href="https://rossw.co.uk/how-to-setup-an-aws-ec2-vps-instance.html">posted at 06:00</a>
+                    &nbsp;&middot;&nbsp;<a href="https://rossw.co.uk/category/hosting.html" rel="tag">Hosting</a>
+                    &nbsp;&middot;
+                    &nbsp;<a href="https://rossw.co.uk/tag/aws.html" class="tags selected">aws</a>
+                    &nbsp;<a href="https://rossw.co.uk/tag/hosting.html" class="tags">hosting</a>
+                    &nbsp;<a href="https://rossw.co.uk/tag/vps.html" class="tags">vps</a>
+                    &nbsp;<a href="https://rossw.co.uk/tag/ubuntu.html" class="tags">ubuntu</a>
+                </div>
+            </article>
+
+            <div class="clear"></div>
+            <footer>
+                <p>
+                <a href="https://github.com/rosswf"><img src="https://rossw.co.uk/theme/images/GitHub-Mark-32px.webp" alt="My Github" width="32" height="32"></a>
+                <a href="https://twitter.com/rossw_"><img src="https://rossw.co.uk/theme/images/2021-Twitter-logo-black.webp" alt="My Twitter" width="32" height="26"></a>
+                </p>
+                <p>
+                Modified <a href="https://github.com/jody-frankowski/blue-penguin">Blue Penguin</a> Theme
+                &middot;
+                Powered by <a href="http://getpelican.com">Pelican</a>
+                &middot;
+                <a href="https://rossw.co.uk/feeds/all.rss.xml" rel="alternate">Rss Feed</a>
+            </footer>
+        </div>
+        <div class="clear"></div>
+    </div>
+    <a href="https://github.com/rosswf" class="github-corner" aria-label="View source on GitHub"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#15A9DB; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+</body>
+</html>
